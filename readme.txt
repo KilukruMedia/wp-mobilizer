@@ -1,16 +1,14 @@
 === WP-Mobilizer ===
-
-Contributors: 			kilukrumedia
-Plugin Name:       		WP-Mobilizer
-Plugin URI:        		http://www.wp-mobilizer.com
-Donate link:       		http://www.wp-mobilizer.com
-Tags: 					mobile theme, mobile theme switcher, mobile browser detect, mobile detect, theme redirection based on mobile device, wp-mobilizer-ready, wp-mobilizer, wp mobilizer, wpmobilizer
-Requires at least: 		3.5
-Tested up to: 			3.5
-Stable tag: 			1.0.0
-Version: 				1.0.0
-License: 				GPLv2 or later
-License URI: 			http://www.gnu.org/licenses/gpl-2.0.html
+Contributors: kilukrumedia
+Plugin URI: http://www.wp-mobilizer.com
+Donate link: http://www.wp-mobilizer.com
+Tags: mobile theme, mobile theme switcher, mobile browser detect, mobile detect, theme redirection based on mobile device, wp-mobilizer-ready, wp-mobilizer, wp mobilizer, wpmobilizer
+Requires at least: 3.5
+Tested up to: 3.5
+Stable tag: trunk
+Version: 1.0.0
+License: GPLv2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 This Plugin detects mobile browser and display the theme as the setting done from admin. Usefull for switch to Mobile Theme.
 
@@ -32,10 +30,12 @@ You can select a different mobile theme for each mobile browser. You can select 
 == Installation ==
 
 1. Upload the plugin wp-mobilizer files to the `/wp-content/plugins/` directory
-2. Activate the wp-mobilizer plugin through the 'Plugins' menu in WordPress.
-3. Select Themes For Mobile Browsers under WP-Mobilizer > Options
+1. Activate the wp-mobilizer plugin through the 'Plugins' menu in WordPress.
+1. Select Themes For Mobile Browsers under WP-Mobilizer > Options
 
 == Frequently Asked Questions ==
+
+Please read these **[FAQs](http://www.wp-mobilizer.com/documentation/)** before requesting
 
 = Does it detect all browsers ? =
 
@@ -50,4 +50,5 @@ Yes it detect most of the mobile browsers and redirects it to its mobile theme s
 == Changelog ==
 
 = 1.0.0 =
+
 * First Release
