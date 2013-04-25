@@ -1,4 +1,4 @@
-=== Plugin Name ===
+=== WP-Mobilizer ===
 
 Contributors: 			Kilukru Media
 Plugin Name:       		WP-Mobilizer
