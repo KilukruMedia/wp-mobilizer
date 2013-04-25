@@ -1,6 +1,6 @@
 === WP-Mobilizer ===
 
-Contributors: 			Kilukru Media
+Contributors: 			KilukruMedia
 Plugin Name:       		WP-Mobilizer
 Plugin URI:        		http://www.wp-mobilizer.com
 Donate link:       		http://www.wp-mobilizer.com
