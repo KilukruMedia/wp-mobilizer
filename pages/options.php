@@ -4,12 +4,13 @@
  * @package WP-Mobilizer
  * @link http://www.wp-mobilizer.com
  * @copyright Copyright &copy; 2013, Kilukru Media
+ * @version: 1.0.1
  */
 
 	global $mblzr;
 
-	if ( $saved ) echo mblzr_show_essage( __('Settings saved','wp_mobilizer') );
-	if ( $reset ) echo mblzr_show_essage( __('Settings reset','wp_mobilizer') );
+	if ( isset($saved) && $saved ) echo mblzr_show_essage( __('Settings saved','wp_mobilizer') );
+	if ( isset($reset) && $reset ) echo mblzr_show_essage( __('Settings reset','wp_mobilizer') );
 
 ?>
 

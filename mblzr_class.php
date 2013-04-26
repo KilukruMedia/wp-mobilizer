@@ -4,8 +4,13 @@
  * @package WP-Mobilizer
  * @link http://www.wp-mobilizer.com
  * @copyright Copyright &copy; 2013, Kilukru Media
- * @version: 1.0.0
+ * @version: 1.0.1
  */
+
+//error_reporting(E_ALL);
+//ini_set('display_errors', 'On');
+//ini_set('log_errors', 'On');
+//ini_set('error_reporting', E_ALL);
 
 /**
  * Include some libraries
@@ -76,41 +81,6 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 		$this->in_mobile_theme = false;
 
 		// Set options
-		$this->options = array(
-
-			array(
-				"label" 	=> __('Enabled side modules in theme settings','wp_mobilizer')."",
-				"desc" 		=> __('by default, it is <b>NO</b>.','wp_mobilizer'),
-				"id" 		=> "mblzr_enabled_side_module_themes_settings",
-				"type" 		=> "on-off",
-				"std"		=> "yes"
-			),
-
-			array(
-				"label" 	=> __('Enabled log file','wp_mobilizer')."",
-				"desc" 		=> __('by default, it is <b>NO</b>.','wp_mobilizer') . '<br />' . '<code>CHMOD 777 ' . MBLZR_PLUGIN_DIR . 'logs' . '</code>',
-				"id" 		=> "mblzr_do_log",
-				"type" 		=> "on-off",
-				"std"		=> "no"
-			),
-
-			array(
-				"label" 	=> __('Log file by date','wp_mobilizer')."",
-				"desc" 		=> __('Separate each log file per date (YYYY/MM/DD)','wp_mobilizer'),
-				"id" 		=> "mblzr_do_log_date",
-				"type" 		=> "on-off",
-				"std"		=> "yes"
-			),
-
-			array(
-				"label" 	=> __('Show themes settings in "Appearance" submenu?','wp_mobilizer')."",
-				"desc" 		=> __('Disabled the theme settings in "Appearance" submenu. Just view settings mode in WP-Mobilizer','wp_mobilizer'),
-				"id" 		=> "mblzr_show_theme_in_appearance_submenu",
-				"type" 		=> "on-off",
-				"std"		=> "no"
-			),
-
-		);
 		$this->options_devices_themes = array(
 			'mblzr_iphone_theme',
 			'mblzr_ipad_theme',
@@ -125,7 +95,6 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 			'mblzr_googletv_tablet_theme',
 			'mblzr_gameconsole_tablet_theme',
 		);
-
 
 		// Hook for init element
 		add_action( 'init', 						array( &$this, 'init' 						), 5 );
@@ -166,7 +135,48 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 	 */
 	public function init() {
 		// Load Language files
-		load_plugin_textdomain('wp_mobilizer', false, MBLZR_PLUGIN_DIRNAME . '/languages/' );
+		if ( !defined( 'WP_PLUGIN_DIR' ) ) {
+			load_plugin_textdomain( 'wp_mobilizer', str_replace( ABSPATH, '', dirname( __FILE__ ) ) );
+		} else {
+			load_plugin_textdomain('wp_mobilizer', false, MBLZR_PLUGIN_DIRNAME . '/languages/' );
+		}
+
+		// Set options
+		$this->options = array(
+
+			array(
+				"label" 	=> __('Enabled side modules in theme settings','wp_mobilizer')."",
+				"desc" 		=> __('by default, it is <b>NO</b>.','wp_mobilizer'),
+				"id" 		=> "mblzr_enabled_side_module_themes_settings",
+				"type" 		=> "on-off",
+				"std"		=> "yes"
+			),
+
+			array(
+				"label" 	=> __('Enabled log file','wp_mobilizer')."",
+				"desc" 		=> __('by default, it is <b>NO</b>.','wp_mobilizer') . '<br />' . '<code>CHMOD 777 ' . MBLZR_PLUGIN_DIR . 'logs' . '</code>',
+				"id" 		=> "mblzr_do_log",
+				"type" 		=> "on-off",
+				"std"		=> "no"
+			),
+
+			array(
+				"label" 	=> __('Log file by date','wp_mobilizer')."",
+				"desc" 		=> __('Separate each log file per date (YYYY/MM/DD)','wp_mobilizer'),
+				"id" 		=> "mblzr_do_log_date",
+				"type" 		=> "on-off",
+				"std"		=> "yes"
+			),
+
+			array(
+				"label" 	=> __('Show themes settings in "Appearance" submenu?','wp_mobilizer')."",
+				"desc" 		=> __('Disabled the theme settings in "Appearance" submenu. Just view settings mode in WP-Mobilizer','wp_mobilizer'),
+				"id" 		=> "mblzr_show_theme_in_appearance_submenu",
+				"type" 		=> "on-off",
+				"std"		=> "no"
+			),
+
+		);
 
 		// Set cookie for template and retrive easy the current theme
 		$this->set_theme_cookie();
@@ -292,61 +302,65 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 		}
 
 		// Init var for each themes options
-		foreach( $this->options_devices_themes as $option ){
-			${$option} = get_option( $option , '');
+		if( isset($this->options_devices_themes) && is_array($this->options_devices_themes) ){
+			foreach( $this->options_devices_themes as $option ){
+				${$option} = get_option( $option , '');
+			}
+		}else{
+			log( __('Please check "options_devices_themes" in WP-Mobilizer','wp_mobilizer') );
 		}
 
-		if( !empty($mblzr_iphone_theme) && $this->DetectIphoneOrIpod() ){
+		if( isset($mblzr_iphone_theme) && !empty($mblzr_iphone_theme) && $this->DetectIphoneOrIpod() ){
 			$this->set_in_mobile_theme();
 			return $mblzr_iphone_theme;
 		}
 
-		if( !empty($mblzr_ipad_theme) && $this->DetectIpad() ){
+		if( isset($mblzr_ipad_theme) && !empty($mblzr_ipad_theme) && $this->DetectIpad() ){
 			$this->set_in_mobile_theme();
 			return $mblzr_ipad_theme;
 		}
 
-		if( !empty($mblzr_android_theme) && $this->DetectAndroidPhone() ){
+		if( isset($mblzr_android_theme) && !empty($mblzr_android_theme) && $this->DetectAndroidPhone() ){
 			$this->set_in_mobile_theme();
 			return $mblzr_android_theme;
 		}
 
-		if( !empty($mblzr_android_tablet_theme) && $this->DetectAndroidTablet() ){
+		if( isset($mblzr_android_tablet_theme) && !empty($mblzr_android_tablet_theme) && $this->DetectAndroidTablet() ){
 			$this->set_in_mobile_theme();
 			return $mblzr_android_tablet_theme;
 		}
 
-		if( !empty($mblzr_blackberry_theme) && ( $this->DetectBlackBerryTouch() || $this->DetectBlackBerryLow() ) ){
+		if( isset($mblzr_blackberry_theme) && !empty($mblzr_blackberry_theme) && ( $this->DetectBlackBerryTouch() || $this->DetectBlackBerryLow() ) ){
 			$this->set_in_mobile_theme();
 			return $mblzr_blackberry_theme;
 		}
 
-		if( !empty($mblzr_blackberry_tablet_theme) && $this->DetectBlackBerryTablet() ){
+		if( isset($mblzr_blackberry_tablet_theme) && !empty($mblzr_blackberry_tablet_theme) && $this->DetectBlackBerryTablet() ){
 			$this->set_in_mobile_theme();
 			return $mblzr_blackberry_tablet_theme;
 		}
 
-		if( !empty($mblzr_windowsmobile_theme) && $this->DetectWindowsMobile() ){
+		if( isset($mblzr_windowsmobile_theme) && !empty($mblzr_windowsmobile_theme) && $this->DetectWindowsMobile() ){
 			$this->set_in_mobile_theme();
 			return $mblzr_windowsmobile_theme;
 		}
 
-		if( !empty($mblzr_smartphone_theme) && ( $this->DetectSmartphone() || $this->DetectTierIphone() ) ){
+		if( isset($mblzr_smartphone_theme) && !empty($mblzr_smartphone_theme) && ( $this->DetectSmartphone() || $this->DetectTierIphone() ) ){
 			$this->set_in_mobile_theme();
 			return $mblzr_smartphone_theme;
 		}
 
-		if( !empty($mblzr_tablet_theme) && $this->DetectTierTablet() ){
+		if( isset($mblzr_tablet_theme) && !empty($mblzr_tablet_theme) && $this->DetectTierTablet() ){
 			$this->set_in_mobile_theme();
 			return $mblzr_tablet_theme;
 		}
 
-		if( !empty($mblzr_googletv_tablet_theme) && $this->DetectGoogleTV() ){
+		if( isset($mblzr_googletv_tablet_theme) && !empty($mblzr_googletv_tablet_theme) && $this->DetectGoogleTV() ){
 			$this->set_in_mobile_theme();
 			return $mblzr_googletv_tablet_theme;
 		}
 
-		if( !empty($mblzr_gameconsole_tablet_theme) && $this->DetectGameConsole() ){
+		if( isset($mblzr_gameconsole_tablet_theme) && !empty($mblzr_gameconsole_tablet_theme) && $this->DetectGameConsole() ){
 			$this->set_in_mobile_theme();
 			return $mblzr_gameconsole_tablet_theme;
 		}
@@ -565,7 +579,7 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 				)){
 
 					if( isset($themes_test[$theme_slug]) ){
-						$this->admin_notices( sprintf(__('Sorry, your theme name "%s" alreadey exist.', "wp_mobilizer" ), $theme->display( 'Name', FALSE ) ), true );
+						$this->admin_notices( sprintf(__('Sorry, your theme name "%s" already exist.', "wp_mobilizer" ), $theme->display( 'Name', FALSE ) ), true );
 					}
 					$themes_test[$theme_slug] = $theme;
 
@@ -1105,7 +1119,7 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 			return false;
 		}
 
-		if ( 'save' == $_REQUEST['action'] ) {
+		if( isset($_REQUEST['action']) && $_REQUEST['action'] == 'save' ) {
 
 			/*foreach ($GLOBALS['themes_options'][$themename] as $value) {
 				if( !isset($value['id']) || empty($value['id']) ){
@@ -1193,7 +1207,7 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 				$_REQUEST['saved'] = 'true';
 				$_GET['saved'] = 'true';
 			}
-		} else if( 'reset' == $_REQUEST['action'] ) {
+		} else if( isset($_REQUEST['action']) && $_REQUEST['action'] == 'reset' ) {
 			foreach ($GLOBALS['themes_options'][$themename] as $field) {
 				if( !isset($field['id']) || empty($field['id']) ){
 					continue;
@@ -1445,7 +1459,7 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 	function required_chmod() {
 
 		// Run log if setting is correct
-		if ( get_option('mblzr_do_log') == 'yes' ) {
+		if ( get_option('mblzr_do_log', '') == 'yes' ) {
 			$this->do_log = true;
 		} else {
 			$this->do_log = false;

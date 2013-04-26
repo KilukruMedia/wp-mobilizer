@@ -1,3 +1,12 @@
+/* ----------------------------------- */
+/**
+ * @package WP-Mobilizer
+ * @link http://www.wp-mobilizer.com
+ * @copyright Copyright &copy; 2013, Kilukru Media
+ * @version: 1.0.1
+ */
+/* ----------------------------------- */
+
 /*jslint browser: true, devel: true, indent: 4, maxerr: 50, sub: true */
 /*global jQuery, tb_show, tb_remove */
 
@@ -13,13 +22,13 @@ jQuery(document).ready(function ($) {
 	/**
 	 * Element For Metaboxes Switch
 	 */
-	$(".cb-enable").click(function(){
+	$(".mblzr_wrap .cb-enable").click(function(){
 		var parent = $(this).parents('.switch');
 		$('.cb-disable',parent).removeClass('selected');
 		$(this).addClass('selected');
 		$('.checkbox',parent).attr('checked', true);
 	});
-	$(".cb-disable").click(function(){
+	$(".mblzr_wrap .cb-disable").click(function(){
 		var parent = $(this).parents('.switch');
 		$('.cb-enable',parent).removeClass('selected');
 		$(this).addClass('selected');
