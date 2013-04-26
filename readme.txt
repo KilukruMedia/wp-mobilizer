@@ -43,13 +43,12 @@ Yes it detect most of the mobile browsers and redirects it to its mobile theme s
 == Screenshots ==
 
 1. Plugins overview page
-2. Admin Setting For Mobile Theme selection repective to their platform.
-3. Themes settings support WP-Mobilizer plugin
+1. Admin Setting For Mobile Theme selection repective to their platform.
+1. Themes settings support WP-Mobilizer plugin
 
 == Changelog ==
 
 = 1.0.0 =
-
 * First Release
 
 == Upgrade Notice ==
