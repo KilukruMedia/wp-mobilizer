@@ -1,6 +1,5 @@
 === WP-Mobilizer ===
 Contributors: kilukrumedia
-Plugin URI: http://www.wp-mobilizer.com
 Donate link: http://www.wp-mobilizer.com
 Tags: mobile theme, mobile theme switcher, mobile browser detect, mobile detect, theme redirection based on mobile device, wp-mobilizer-ready, wp-mobilizer, wp mobilizer, wpmobilizer
 Requires at least: 3.5
@@ -52,3 +51,5 @@ Yes it detect most of the mobile browsers and redirects it to its mobile theme s
 = 1.0.0 =
 
 * First Release
+
+== Upgrade Notice ==
