@@ -3,7 +3,7 @@
  * @package WP-Mobilizer
  * @link http://www.wp-mobilizer.com
  * @copyright Copyright &copy; 2013, Kilukru Media
- * @version: 1.0.1
+ * @version: 1.0.2
  */
 /* ----------------------------------- */
 
@@ -113,19 +113,19 @@ jQuery(document).ready(function ($) {
 	});
 
 	window.original_send_to_editor = window.send_to_editor;
-    window.send_to_editor = function (html) {
+	window.send_to_editor = function (html) {
 		var itemurl, itemclass, itemClassBits, itemid, htmlBits, itemtitle,
 			image, uploadStatus = true;
 
 		if (formfield) {
 
-	        if ($(html).html(html).find('img').length > 0) {
+			if ($(html).html(html).find('img').length > 0) {
 				itemurl = $(html).html(html).find('img').attr('src'); // Use the URL to the size selected.
 				itemclass = $(html).html(html).find('img').attr('class'); // Extract the ID from the returned class name.
 				itemClassBits = itemclass.split(" ");
 				itemid = itemClassBits[itemClassBits.length - 1];
 				itemid = itemid.replace('wp-image-', '');
-	        } else {
+			} else {
 				// It's not an image. Get the URL to the file instead.
 				htmlBits = html.split("'"); // jQuery seems to strip out XHTML when assigning the string to an object. Use alternate method.
 				itemurl = htmlBits[1]; // Use the URL to the file.

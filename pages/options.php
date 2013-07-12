@@ -4,7 +4,7 @@
  * @package WP-Mobilizer
  * @link http://www.wp-mobilizer.com
  * @copyright Copyright &copy; 2013, Kilukru Media
- * @version: 1.0.1
+ * @version: 1.0.2
  */
 
 	global $mblzr;
@@ -20,18 +20,18 @@
 <div class="metabox-holder">
 <table width="100%">
 	<tr>
-    	<td valign="top">
+		<td valign="top">
 			<?php settings_fields( 'mblzr-settings' ); ?>
 
 
 			<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 			<?php mblzr_display_form_elements(array('type' => 'open')); ?>
-		        <?php
+				<?php
 					mblzr_display_form_elements(array('type' => 'title','label' =>
 						__('Theme for devices', 'wp_mobilizer')
 					));
 				?>
-		        <?php mblzr_display_form_elements(array('type' => 'open_options')); ?>
+				<?php mblzr_display_form_elements(array('type' => 'open_options')); ?>
 					<?php
 
 						// Get themes
@@ -131,12 +131,12 @@
 
 			<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 			<?php mblzr_display_form_elements(array('type' => 'open')); ?>
-		        <?php
+				<?php
 					mblzr_display_form_elements(array('type' => 'title','label' =>
 						__('Settings', 'wp_mobilizer')
 					));
 				?>
-		        <?php mblzr_display_form_elements(array('type' => 'open_options')); ?>
+				<?php mblzr_display_form_elements(array('type' => 'open_options')); ?>
 					<?php
 
 						if( isset($this->options) && is_array($this->options) ){
@@ -153,12 +153,12 @@
 			<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 
 
-        </td>
-        <td width="15">&nbsp;</td>
-        <td width="250" valign="top">
-	        <?php echo $mblzr->side_modules(); ?>
-        </td>
-    </tr>
+		</td>
+		<td width="15">&nbsp;</td>
+		<td width="250" valign="top">
+			<?php echo $mblzr->side_modules(); ?>
+		</td>
+	</tr>
 </table></div>
 
 	<input name="action" type="hidden" value="save-options" />

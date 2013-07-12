@@ -3,7 +3,7 @@
 Plugin Name: WP-Mobilizer
 Plugin URI: http://www.wp-mobilizer.com
 Description: This plugin allow you to detect all mobile platform and switch the theme. Supports most of the mobile platform including iphone, ipad, ipod, windows mobile, parm os, blackberry, android.
-Version: 1.0.1
+Version: 1.0.2
 Author: Kilukru Media
 Author URI: http://www.kilukrumedia.com
 */
@@ -35,10 +35,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 if ( !session_id() ){ session_start(); } // Start session just in case
 
 if ( ! defined( 'MBLZR_VERSION' ) )
-{	define( 'MBLZR_VERSION', '1.0.1' ); }
+{	define( 'MBLZR_VERSION', '1.0.2' ); }
 
 if ( ! defined( 'MBLZR_VERSION_NUMERIC' ) )
-{	define( 'MBLZR_VERSION_NUMERIC', '1001001' ); }
+{	define( 'MBLZR_VERSION_NUMERIC', '1002001' ); }
 
 if ( ! defined( 'MBLZR_PLUGIN_DIR' ) )
 {	define( 'MBLZR_PLUGIN_DIR', plugin_dir_path( __FILE__ ) ); }

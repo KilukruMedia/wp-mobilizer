@@ -4,7 +4,7 @@
  * @package WP-Mobilizer
  * @link http://www.wp-mobilizer.com
  * @copyright Copyright &copy; 2013, Kilukru Media
- * @version: 1.0.1
+ * @version: 1.0.2
  */
 
 if (!function_exists('mblzr_activate')) {
@@ -96,7 +96,7 @@ if (!function_exists('mblzr_load_mobile_style')) {
 		$themeList = wp_get_themes();
 		foreach ($themeList as $theme) {
 		  if ($theme['Name'] == $mobileTheme) {
-		      return $theme['Stylesheet'];
+			  return $theme['Stylesheet'];
 		  }
 		}
 	}
@@ -109,7 +109,7 @@ if (!function_exists('mblzr_load_mobile_theme')) {
 		$themeList = wp_get_themes();
 		foreach ($themeList as $theme) {
 		  if ($theme['Name'] == $mobileTheme) {
-		      return $theme['Template'];
+			  return $theme['Template'];
 		  }
 		}
 	}
@@ -172,13 +172,13 @@ if ( ! function_exists( 'mblzr_returns_background_repeat' ) ) {
 
   function mblzr_returns_background_repeat( $field_value = '' ) {
 
-    return apply_filters( 'mblzr_returns_background_repeat', array(
-      'no-repeat' 	=> __('No Repeat', 'wp_mobilizer'),
-      'repeat' 		=> __('Repeat All', 'wp_mobilizer'),
-      'repeat-x'  	=> __('Repeat Horizontally', 'wp_mobilizer'),
-      'repeat-y' 	=> __('Repeat Vertically', 'wp_mobilizer'),
-      'inherit'   	=> __('Inherit', 'wp_mobilizer')
-    ), $field_value );
+	return apply_filters( 'mblzr_returns_background_repeat', array(
+	  'no-repeat' 	=> __('No Repeat', 'wp_mobilizer'),
+	  'repeat' 		=> __('Repeat All', 'wp_mobilizer'),
+	  'repeat-x'  	=> __('Repeat Horizontally', 'wp_mobilizer'),
+	  'repeat-y' 	=> __('Repeat Vertically', 'wp_mobilizer'),
+	  'inherit'   	=> __('Inherit', 'wp_mobilizer')
+	), $field_value );
 
   }
 
@@ -199,11 +199,11 @@ if ( ! function_exists( 'mblzr_returns_background_attachment' ) ) {
 
   function mblzr_returns_background_attachment( $field_value = '' ) {
 
-    return apply_filters( 'mblzr_returns_background_attachment', array(
-      "fixed"   	=> __("Fixed", 'wp_mobilizer'),
-      "scroll"  	=> __("Scroll", 'wp_mobilizer'),
-      "inherit"		=> __("Inherit", 'wp_mobilizer')
-    ), $field_value );
+	return apply_filters( 'mblzr_returns_background_attachment', array(
+	  "fixed"   	=> __("Fixed", 'wp_mobilizer'),
+	  "scroll"  	=> __("Scroll", 'wp_mobilizer'),
+	  "inherit"		=> __("Inherit", 'wp_mobilizer')
+	), $field_value );
 
   }
 
@@ -224,7 +224,7 @@ if ( ! function_exists( 'mblzr_returns_background_position' ) ) {
 
   function mblzr_returns_background_position( $field_value = '' ) {
 
-    return apply_filters( 'mblzr_returns_background_position', array(
+	return apply_filters( 'mblzr_returns_background_position', array(
 		"left top"      	=> __("Left Top", 'wp_mobilizer') 		. ' [0 0]',
 		"left center"   	=> __("Left Center", 'wp_mobilizer') 	. ' [0 50%]',
 		"left bottom"   	=> __("Left Bottom", 'wp_mobilizer') 	. ' [0 100%]',
@@ -234,7 +234,7 @@ if ( ! function_exists( 'mblzr_returns_background_position' ) ) {
 		"right top"     	=> __("Right Top", 'wp_mobilizer') 		. ' [100% 0]',
 		"right center"  	=> __("Right Center", 'wp_mobilizer') 	. ' [100% 50%]',
 		"right bottom"  	=> __("Right Bottom", 'wp_mobilizer') 	. ' [100% 100%]'
-    ), $field_value );
+	), $field_value );
 
   }
 
@@ -255,12 +255,12 @@ if ( ! function_exists( 'mblzr_measurement_unit_types' ) ) {
 
   function mblzr_measurement_unit_types( $field_value = '' ) {
 
-    return apply_filters( 'ot_measurement_unit_types', array(
-      'px' => 'px',
-      '%'  => '%',
-      'em' => 'em',
-      'pt' => 'pt'
-    ), $field_value );
+	return apply_filters( 'ot_measurement_unit_types', array(
+	  'px' => 'px',
+	  '%'  => '%',
+	  'em' => 'em',
+	  'pt' => 'pt'
+	), $field_value );
 
   }
 
@@ -286,7 +286,7 @@ if ( ! function_exists( 'mblzr_layout_radio_images' ) ) {
 
   function mblzr_layout_radio_images( $field_value = '' ) {
 
-    return apply_filters( 'mblzr_layout_radio_images', array(
+	return apply_filters( 'mblzr_layout_radio_images', array(
 		array(
 			'value'   => 'left-sidebar',
 			'label'   => 'Left Sidebar',
@@ -317,7 +317,7 @@ if ( ! function_exists( 'mblzr_layout_radio_images' ) ) {
 			'label'   => __( 'Right Dual Sidebar', 'option-tree' ),
 			'src'     => MBLZR_PLUGIN_IMAGES_URL . 'admin/layout/right-dual-sidebar.png'
 		)
-    ), $field_value );
+	), $field_value );
 
   }
 
@@ -532,9 +532,9 @@ case "title":
 ?>
 
 <thead>
-    <tr>
-        <th<?php if( isset($field['class']) && !empty($field['class']) ){ echo ' class="' . $field['class'] . '"'; } ?><?php if( isset($field['name']) && !empty($field['name']) ){ echo ' name="' . $field['name'] . '"'; } ?><?php if( isset($field['id']) && !empty($field['id']) ){ echo ' id="' . $field['id'] . '"'; } ?>><?php echo $field['label']; ?></th>
-    </tr>
+	<tr>
+		<th<?php if( isset($field['class']) && !empty($field['class']) ){ echo ' class="' . $field['class'] . '"'; } ?><?php if( isset($field['name']) && !empty($field['name']) ){ echo ' name="' . $field['name'] . '"'; } ?><?php if( isset($field['id']) && !empty($field['id']) ){ echo ' id="' . $field['id'] . '"'; } ?>><?php echo $field['label']; ?></th>
+	</tr>
 </thead>
 
 <?php
@@ -558,8 +558,8 @@ case "open_options":
 case "open_option":
 ?>
 <tbody>
-    <tr>
-        <td<?php if( isset($field['class']) && !empty($field['class']) ){ echo ' class="' . $field['class'] . '"'; } ?>>
+	<tr>
+		<td<?php if( isset($field['class']) && !empty($field['class']) ){ echo ' class="' . $field['class'] . '"'; } ?>>
 
 			<table class="form-table mblzr_metabox">
 
@@ -1487,7 +1487,7 @@ case 'background':
 		echo '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
 
 			// build background colorpicker
-        	echo '<div class="option-tree-ui-colorpicker-input-wrap">';
+			echo '<div class="option-tree-ui-colorpicker-input-wrap">';
 				echo '<input class="mblzr_colorpicker mblzr_text_small" size="20" type="text" name="' . $field['name'] . '[background-color]" id="' . $field['id'] . '-colorpicker" value="' . $get_value_bg_color . '" />';
 			echo '</div>';
 
@@ -1592,12 +1592,12 @@ if( is_admin() ) {
 	add_action( 'mblzr_render_custom_field_type', 'custom_theme_mblzr_render_custom_field_type', 10, 2 );
 	function custom_theme_mblzr_render_custom_field_type( $field, $get_value ) {
 
-	    echo '<tr>';
+		echo '<tr>';
 			echo '<th scope="row"><label for="' . $field['id'] . '">' . $field['label'] . '</label></th>';
 			echo '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
 				echo '<input type="text" name="' . $field['name'] . '" id="' . $field['id'] . '" value="' . ( isset($get_value) && !empty($get_value) ? $get_value : $field['std'] ) . '" />';
-	  		echo '</td>';
-	    echo '</tr>';
+			echo '</td>';
+		echo '</tr>';
 
 		echo mblzr_end_option_separator( $field['desc'] );
 	}
@@ -1606,8 +1606,8 @@ if( is_admin() ) {
 if( is_admin() ) {
 	add_filter( 'mblzr_validate_custom_field_type', 'custom_theme_mblzr_validate_custom_field_type' );
 	function custom_theme_mblzr_validate_custom_field_type( $string, $field = array() ) {
-	    if( empty( $string ) ){ $string = ""; }
-	    return $string;
+		if( empty( $string ) ){ $string = ""; }
+		return $string;
 	}
 }
 */
