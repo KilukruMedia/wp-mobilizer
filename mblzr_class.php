@@ -4,7 +4,7 @@
  * @package WP-Mobilizer
  * @link http://www.wp-mobilizer.com
  * @copyright Copyright &copy; 2013, Kilukru Media
- * @version: 1.0.2
+ * @version: 1.0.3
  */
 
 //error_reporting(E_ALL);
@@ -59,8 +59,8 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 		$this->minimum_WP 	= '3.5.0';
 
 		// Version of assets files
-		$this->version_css 	= '1.0.2';
-		$this->version_js 	= '1.0.2';
+		$this->version_css 	= '1.0.3';
+		$this->version_js 	= '1.0.3';
 
 		// Version of Functions Files
 		$this->minimum_version_functions	= '1.0';
@@ -79,6 +79,9 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 		// Run the uagent_info class
 		$this->uagent_info();
 		$this->in_mobile_theme = false;
+		
+		// Check User informations
+		$this->get_user_info();
 
 		// Set options
 		$this->options_devices_themes = array(
@@ -465,6 +468,10 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 	 * Runs after WordPress has finished loading but before any headers are sent
 	 */
 	function dashboard_widget_function() {
+		if( defined('MBLZR_DISABLED_DASHBOARD_WIDGET') ){
+			return;
+		}
+		
 		echo '<ul class="ul-disc">';
 			echo '<li>Mobilizer1 - [<a href="http://www.wp-mobilizer.com" target="_blank">' . __('More info', 'wp_mobilizer') . '</a>] [<a href="http://www.wp-mobilizer.com" target="_blank">' . __('Download', 'wp_mobilizer') . '</a>] (Free) (installed)</li>';
 			echo '<li>Mobilizer2 - [<a href="http://www.wp-mobilizer.com" target="_blank">' . __('Download', 'wp_mobilizer') . '</a>] (Free)</li>';
@@ -475,6 +482,10 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 	 * Runs after WordPress has finished loading but before any headers are sent
 	 */
 	function dashboard_setup() {
+		if( defined('MBLZR_DISABLED_DASHBOARD_WIDGET') ){
+			return;
+		}
+		
 		wp_add_dashboard_widget('wp_dashboard_widget', __('Mobile themes', 'wp_mobilizer'), array(&$this, 'dashboard_widget_function') );
 	}
 
@@ -563,8 +574,11 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 
 		// Setup the sub menu
 		add_submenu_page( MBLZR_PLUGIN_DIRNAME , __('Overview', 'wp_mobilizer'), __('Overview', 'wp_mobilizer'), 'manage_options', MBLZR_PLUGIN_DIRNAME, array (&$this, 'show_menu'));
-		add_submenu_page( MBLZR_PLUGIN_DIRNAME , __('Options', 'wp_mobilizer'), __('Options', 'wp_mobilizer'), 'manage_options', MBLZR_PLUGIN_DIRNAME . '-options', array (&$this, 'show_menu'));
 
+		// If you want to desactivate menu options for some admin
+		if( !defined('MBLZR_DISABLED_SUBMENU_PAGES') ){
+			add_submenu_page( MBLZR_PLUGIN_DIRNAME , __('Options', 'wp_mobilizer'), __('Options', 'wp_mobilizer'), 'manage_options', MBLZR_PLUGIN_DIRNAME . '-options', array (&$this, 'show_menu'));
+		}
 
 		// Get themes
 		$themes_mblzr_support = array();
@@ -663,9 +677,10 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 
 		// Load compatible theme with WP-Mobilizer
 		if( is_array($themes_mblzr_support) && count($themes_mblzr_support) > 0 ){
+			
 			//Add Separator
 			add_submenu_page( MBLZR_PLUGIN_DIRNAME , '', '</a><em></em><span class="span_separator">' . _n('Theme settings','Themes settings', count($themes_mblzr_support),'wp_mobilizer') . '</span><a>', 'manage_options', MBLZR_PLUGIN_DIRNAME . '-separator', array (&$this, 'show_menu'));
-
+			
 			foreach( $themes_mblzr_support as $theme_slug => $theme ){
 				//add_submenu_page( MBLZR_PLUGIN_DIRNAME , $theme['page_title'], $theme['menu_title'], 'manage_options', $theme['menu_slug'], $theme['function']);
 				add_submenu_page( MBLZR_PLUGIN_DIRNAME , $theme['page_title'], $theme['menu_title'], 'manage_options', $theme['menu_slug'], array (&$this, 'show_theme_settings'));
@@ -673,7 +688,7 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 
 			//Add Separator
 			add_submenu_page( MBLZR_PLUGIN_DIRNAME , '', '</a><em></em><span class="span_separator empty"></span><a>', 'manage_options', MBLZR_PLUGIN_DIRNAME . '-separator', array (&$this, 'show_menu'));
-
+		
 		}
 
 
@@ -839,17 +854,22 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 		<?php
 
 			$module_html = '';
-			$module_html .= '<p>Use the following shortcode to show the theme switch link.';
-			$module_html .= '<br /><code>[mblzr_theme_switch_link]</code></p>';
+			
+			if( $this->is_admin() && !defined('MBLZR_HIDE_ADMIN_CONTENT') ){
+			
+				$module_html .= '<p>Use the following shortcode to show the theme switch link.';
+				$module_html .= '<br /><code>[mblzr_theme_switch_link]</code></p>';
 
-			$module_html .= '<p>Or use the following shortcode in templates themes to show the theme switch link.';
-			$module_html .= '<br /><code>&lt;?php echo do_shortcode(\'[mblzr_theme_switch_link]\'); ?&gt;</code></p>';
+				$module_html .= '<p>Or use the following shortcode in templates themes to show the theme switch link.';
+				$module_html .= '<br /><code>&lt;?php echo do_shortcode(\'[mblzr_theme_switch_link]\'); ?&gt;</code></p>';
 
-			$module_html .= '<p>Or use the following PHP Constants in yours theme.';
-			$module_html .= '<br /><code>&lt;?php echo MBLZR_URL_FORCE_SITE; ?&gt;</code>';
-			$module_html .= '<br /><code>&lt;?php echo MBLZR_URL_FORCE_MOBILE; ?&gt;</code></p>';
+				$module_html .= '<p>Or use the following PHP Constants in yours theme.';
+				$module_html .= '<br /><code>&lt;?php echo MBLZR_URL_FORCE_SITE; ?&gt;</code>';
+				$module_html .= '<br /><code>&lt;?php echo MBLZR_URL_FORCE_MOBILE; ?&gt;</code></p>';
 
-			$module_html .= '<p>&nbsp;</p>';
+				$module_html .= '<p>&nbsp;</p>';
+			
+			}
 
 			$module_html .= '<p>You can also add Switch Mobile Theme link to your Menus from Custom Links section under Appearance > Menus.</p>';
 
@@ -871,45 +891,50 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 		?>
 
 		<?php
+		
+			if( $this->is_admin() && !defined('MBLZR_HIDE_ADMIN_CONTENT') ){
+			
+				// Set images
+				//$img_yes = '<img src="' . esc_url( MBLZR_PLUGIN_IMAGES_URL . 'admin/yes.png' ) . '" alt="" />';
+				$img_yes = '<span class="txt_yes">&#10004;</span>'; //&check; &checkmark;
+				//$img_no = '<img src="' . esc_url( MBLZR_PLUGIN_IMAGES_URL . 'admin/no.png' ) . '" alt="" />';
+				$img_no = '<span class="txt_no">&#10007;</span>'; //&cross;
 
-			// Set images
-			//$img_yes = '<img src="' . esc_url( MBLZR_PLUGIN_IMAGES_URL . 'admin/yes.png' ) . '" alt="" />';
-			$img_yes = '<span class="txt_yes">&#10004;</span>'; //&check; &checkmark;
-			//$img_no = '<img src="' . esc_url( MBLZR_PLUGIN_IMAGES_URL . 'admin/no.png' ) . '" alt="" />';
-			$img_no = '<span class="txt_no">&#10007;</span>'; //&cross;
+				$module_html = '';
 
-			$module_html = '';
+				if( $this->themes && is_array($this->themes) && count($this->themes) > 0 ){
+					$module_html .= '<table class="table_listing">';
+					foreach( $this->themes as $theme_slug => $theme){
 
-			if( $this->themes && is_array($this->themes) && count($this->themes) > 0 ){
-				$module_html .= '<table class="table_listing">';
-				foreach( $this->themes as $theme_slug => $theme){
+						$img = $img_no;
+						if( isset($this->themes_mblzr_support) && is_array($this->themes_mblzr_support) && isset($this->themes_mblzr_support[$theme_slug]) ){
+							$img = $img_yes;
+						}
 
-					$img = $img_no;
-					if( isset($this->themes_mblzr_support) && is_array($this->themes_mblzr_support) && isset($this->themes_mblzr_support[$theme_slug]) ){
-						$img = $img_yes;
+						$module_html .= '
+							<tr valign="top">
+								<th scope="row">' . $theme->display( 'Name', FALSE ) . ' &nbsp; <code>[' . $theme_slug . ']</code></th>
+								<td>' . $img . '</td>
+							</tr>
+						';
 					}
 
 					$module_html .= '
-						<tr valign="top">
-							<th scope="row">' . $theme->display( 'Name', FALSE ) . ' &nbsp; <code>[' . $theme_slug . ']</code></th>
-							<td>' . $img . '</td>
-						</tr>
+						</table>
+						<br />
 					';
+				}else{
+					$module_html .= mblzr_show_essage(__('Sorry, no theme found.', 'wp_mobilizer'), true);
 				}
 
-				$module_html .= '
-					</table>
-					<br />
-				';
-			}else{
-				$module_html .= mblzr_show_essage(__('Sorry, no theme found.', 'wp_mobilizer'), true);
+				echo $this->module_html( __('Themes compatibility with WP-Mobilizer', 'wp_mobilizer'), $module_html );
+				echo '<br />';
+			
 			}
-
-			echo $this->module_html( __('Themes compatibility with WP-Mobilizer', 'wp_mobilizer'), $module_html );
 
 		?>
 
-		<br/>
+		
 
 		<?php
 
@@ -1290,8 +1315,8 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 			// Set the common scripts
 			wp_register_script('mblzr_admin_htmlhead_common', path_join(
 				MBLZR_PLUGIN_JS_URL,
-				'admin/htmlhead_common.js'
-			), array('jquery'), $this->version_js);
+				'admin/htmlhead_common' . ( $this->get_filetime_forfile() ) . '.js'
+			), array('jquery'), $this->get_version_number($this->version_js) );
 			wp_enqueue_script( 'mblzr_admin_htmlhead_common' );
 
 			// Commin WP Admin Load scripts
@@ -1322,23 +1347,24 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 
 			wp_register_script( 'mblzr-timepicker', path_join(
 				MBLZR_PLUGIN_JS_URL,
-				'admin/jquery.timePicker.min.js'
-			), array('jquery'), $this->version_js);
+				'admin/jquery.timePicker.min' . ( $this->get_filetime_forfile() ) . '.js'
+			), array('jquery'), $this->get_version_number($this->version_js) );
 			wp_enqueue_script( 'mblzr-timepicker' );
 
 
 			// JS for Common plugin page
 			wp_register_script('mblzr_admin_htmlhead', path_join(
 				MBLZR_PLUGIN_JS_URL,
-				'admin/htmlhead.js'
-			), array('jquery'), $this->version_js);
+				'admin/htmlhead' . ( $this->get_filetime_forfile() ) . '.js'
+			), array('jquery'), $this->get_version_number($this->version_js) );
 			wp_enqueue_script('mblzr_admin_htmlhead');
+			
 
 			// JS for Options page
 			wp_register_script('mblzr_admin_options', path_join(
 				MBLZR_PLUGIN_JS_URL,
-				'admin/htmlhead_options.js'
-			), $mblzr_script_array, $this->version_js);
+				'admin/htmlhead_options' . ( $this->get_filetime_forfile() ) . '.js'
+			), $mblzr_script_array, $this->get_version_number($this->version_js) );
 			//wp_localize_script( 'mblzr_admin_options', 'mblzr_ajax_data', array( 'ajax_nonce' => wp_create_nonce( 'ajax_nonce' ), 'post_id' => get_the_ID() ) );
 			wp_localize_script( 'mblzr_admin_options', 'mblzr_ajax_data', array( 'ajax_nonce' => wp_create_nonce( 'ajax_nonce' ) ) );
 			wp_enqueue_script( 'mblzr_admin_options' );
@@ -1366,7 +1392,7 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 		// Check if they are in admin
 		if( is_admin() ){
 			// Set the common style
-			wp_register_style( 'mblzr_admin_common', MBLZR_PLUGIN_CSS_URL .'admin/styles_common.css', false, $this->version_css, 'screen' );
+			wp_register_style( 'mblzr_admin_common', MBLZR_PLUGIN_CSS_URL .'admin/styles_common' . ( $this->get_filetime_forfile() ) . '.css', false, $this->get_version_number($this->version_css), 'screen' );
 			wp_enqueue_style( 'mblzr_admin_common' );
 		}
 
@@ -1390,11 +1416,11 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 			wp_enqueue_style( 'thickbox' );
 
 			// load the admin styles
-			wp_register_style( 'mblzr_admin', MBLZR_PLUGIN_CSS_URL .'admin/styles.css', false, $this->version_css, 'screen' );
+			wp_register_style( 'mblzr_admin', MBLZR_PLUGIN_CSS_URL . 'admin/styles' . ( $this->get_filetime_forfile() ) . '.css', false, $this->get_version_number($this->version_css), 'screen' );
 			wp_enqueue_style( 'mblzr_admin' );
 
 			// load the admin options styles
-			wp_register_style( 'mblzr_admin_options', MBLZR_PLUGIN_CSS_URL .'admin/styles_options.css', $mblzr_style_array, $this->version_css, 'screen' );
+			wp_register_style( 'mblzr_admin_options', MBLZR_PLUGIN_CSS_URL . 'admin/styles_options' . ( $this->get_filetime_forfile() ) . '.css', $mblzr_style_array, $this->get_version_number($this->version_css), 'screen' );
 			wp_enqueue_style( 'mblzr_admin_options' );
 
 			/*switch ($_GET['page']) {
@@ -1417,7 +1443,7 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 		// Check if they not are in admin
 		if( !defined('MBLZR_DISABLED_FRONTEND_CSS') && !is_admin() ){
 			// Set the common style
-			wp_register_style( 'mblzr_common', MBLZR_PLUGIN_CSS_URL .'styles.css', false, $this->version_css, 'screen' );
+			wp_register_style( 'mblzr_common', MBLZR_PLUGIN_CSS_URL . 'styles' . ( $this->get_filetime_forfile() ) . '.css', false, $this->get_version_number($this->version_css), 'screen' );
 			wp_enqueue_style( 'mblzr_common' );
 			//mblzr_force_mobile
 		}
@@ -1507,7 +1533,38 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 		);
 
 	}
-
+	
+	/**
+	* ADD Filetime into file if KM_FILEMTIME_REWRITE constant exist
+	* 
+	* @param mixed $default
+	* @return mixed
+	*/
+	public function get_filetime_forfile( $default = '' ){
+		
+		if( !defined('KM_FILEMTIME_REWRITE') ){
+			return $default;
+		}
+		
+		return '-' . MBLZR_VERSION_FILETIME;
+		
+	}
+	
+	/**
+	* Return null value if KM_FILEMTIME_REWRITE constant exist
+	* 
+	* @param mixed $default
+	*/
+	public function get_version_number( $default ){
+		
+		if( !defined('KM_FILEMTIME_REWRITE') ){
+			return $default;
+		}
+		
+		return null;
+		
+	}
+	
 	/**
 	 * Set log file datas
 	 */
@@ -1523,6 +1580,57 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 	 */
 	public function is_admin() {
 		return current_user_can('level_8');
+	}
+	
+	/**
+	* Check Role for the user
+	* 
+	* @param mixed $role
+	*/
+	public function is_role( $role ){
+		
+		if( $this->current_user == false ){
+			return false;
+		}
+		
+		if( @reset($current_user->roles) == $role ){
+			return true;
+		}else{
+			return false;
+		}
+		
+	}
+	
+	/**
+	* Return current ID User
+	* 
+	* @param mixed $role
+	*/
+	public function id_user( $role ){
+		
+		if( $this->current_user == false ){
+			return false;
+		}else{
+			return $this->current_user->ID;
+		}
+		
+	}
+	
+	/**
+	* Get user informations
+	* 
+	*/
+	public function get_user_info(){
+		global $current_user;
+		
+		if( function_exists('get_currentuserinfo') ){
+			get_currentuserinfo();
+		}
+		
+		if( isset($current_user) && $current_user ){
+			$this->current_user = $current_user;
+		}
+
 	}
 
 	/**

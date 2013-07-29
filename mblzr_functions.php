@@ -1637,4 +1637,20 @@ if( is_admin() ) {
 
 }}
 
+if ( ! function_exists( 'mblzr_get_option_on_off' ) ){function mblzr_get_option_on_off( $option, $default = 'yes' ){
+	if( isset($GLOBALS['mblzr_get_option']) && isset($GLOBALS['mblzr_get_option'][$option]) ){
+		return $GLOBALS['mblzr_get_option'][$option];
+	}
+	$option_value = get_option($option, $default );
+	$option_value = (  ( $option_value == 'yes' || $option_value == 'oui' ) ? true : false );
+	
+	if( !isset($GLOBALS['mblzr_get_option']) ){
+		$GLOBALS['mblzr_get_option'] = array();
+	}
+	
+	$GLOBALS['mblzr_get_option'][$option] = $option_value;
+	
+	return $option_value;
+}}
+
 
