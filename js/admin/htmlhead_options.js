@@ -3,7 +3,7 @@
  * @package WP-Mobilizer
  * @link http://www.wp-mobilizer.com
  * @copyright Copyright &copy; 2013, Kilukru Media
- * @version: 1.0.3
+ * @version: 1.0.4
  */
 /* ----------------------------------- */
 
@@ -90,6 +90,46 @@ jQuery(document).ready(function ($) {
 	/**
 	 * File and image upload handling
 	 */
+	 /*var custom_uploader;
+	$('.btn_upload_button').click(function(e) {
+		e.preventDefault();
+		
+		var relId = $( this ).attr('rel');
+ 
+		//If the uploader object has already been created, reopen the dialog
+		if (custom_uploader) {
+			custom_uploader.open();
+			return;
+		}
+ 
+		//Extend the wp.media object
+		custom_uploader = wp.media.frames.file_frame = wp.media({
+			title: 'Choose Image',
+			button: {
+				text: 'Choose Image'
+			},
+			multiple: false
+		});
+ 
+		//When a file is selected, grab the URL and set it as the text field's value
+		custom_uploader.on('select', function() {
+			attachment = custom_uploader.state().get('selection').first().toJSON();
+			
+			var itemurl = attachment.url;
+			
+			if( typeof(itemurl) != 'undefined' ){
+				itemurl = itemurl.replace('http://' + location.hostname, '');
+			}
+		
+			$( '#' + relId ).val(itemurl);
+		});
+ 
+		//Open the uploader dialog
+		custom_uploader.open();
+ 
+	});*/
+	
+	
 	$('.mblzr_upload_file').change(function () {
 		formfield = $(this).attr('id');
 		$('#' + formfield + '_id').val("");

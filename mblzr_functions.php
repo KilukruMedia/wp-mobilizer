@@ -4,7 +4,7 @@
  * @package WP-Mobilizer
  * @link http://www.wp-mobilizer.com
  * @copyright Copyright &copy; 2013, Kilukru Media
- * @version: 1.0.2
+ * @version: 1.0.4
  */
 
 if (!function_exists('mblzr_activate')) {
