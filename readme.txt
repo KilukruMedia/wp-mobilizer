@@ -3,9 +3,9 @@ Contributors: kilukrumedia
 Donate link: http://www.wp-mobilizer.com
 Tags: mobile theme, mobile theme switcher, mobile browser detect, mobile detect, theme redirection based on mobile device, wp-mobilizer-ready, wp-mobilizer, wp mobilizer, wpmobilizer
 Requires at least: 3.5
-Tested up to: 3.5
+Tested up to: 3.6
 Stable tag: trunk
-Version: 1.0.1
+Version: 1.0.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,6 +47,23 @@ Yes it detect most of the mobile browsers and redirects it to its mobile theme s
 1. Themes settings support WP-Mobilizer plugin
 
 == Changelog ==
+
+= 1.0.5 =
+* bugs fix
+* add options for functions form type
+* add echo option in functions form type
+* add possibility to add custom element for post_meta
+
+= 1.0.4 =
+* bugs fix
+
+= 1.0.3 =
+* bugs fix
+* add support for filetime for file caching (Google Page Speed)
+* add check role function for currect user
+
+= 1.0.2 =
+* bugs fix
 
 = 1.0.1 =
 * bugs fix
