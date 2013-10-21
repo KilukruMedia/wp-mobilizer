@@ -4,7 +4,7 @@
  * @package WP-Mobilizer
  * @link http://www.wp-mobilizer.com
  * @copyright Copyright &copy; 2013, Kilukru Media
- * @version: 1.0.4
+ * @version: 1.0.5
  */
 
 if (!function_exists('mblzr_activate')) {
@@ -329,6 +329,7 @@ if ( ! function_exists( 'mblzr_display_form_elements' ) ){ function mblzr_displa
 	$default_args = array(
 		'type' 						=> 'text',
 		'label' 					=> '',
+		'label_hide' 				=> false,
 		'name' 						=> '',
 		'options' 					=> array(),
 		'options_key_value' 		=> false,
@@ -336,13 +337,18 @@ if ( ! function_exists( 'mblzr_display_form_elements' ) ){ function mblzr_displa
 		'std_value' 				=> '',
 		'desc' 						=> '',
 		'id' 						=> '',
+		'echo' 						=> true,
 
-		'title' 					=> 'Click to toggle',
+		'title' 					=> __('Click to toggle','wp_mobilizer'),
 
 		'label_yes' 				=> __('Yes','wp_mobilizer'),
 		'value_yes' 				=> 'yes',
 		'label_no' 					=> __('No','wp_mobilizer'),
 		'value_no' 					=> 'no',
+		
+		'value_type' 				=> 'option',
+		'post_id' 					=> false,
+		
 
 	);
 
@@ -355,8 +361,12 @@ if ( ! function_exists( 'mblzr_display_form_elements' ) ){ function mblzr_displa
 	$field = array_merge( $default_args, $field );
 
 	// Get value of the settings / options
-	$get_value = get_option( $field['id'], ( isset($field['std']) ? isset($field['std']) : '' ) );
-
+	if( $field['value_type'] == 'post_meta' && is_numeric($field['post_id']) ){
+		$get_value = get_post_meta( $field['post_id'], $field['id'], ( isset($field['std']) ? isset($field['std']) : '' ) );
+	}else{
+		$get_value = get_option( $field['id'], ( isset($field['std']) ? isset($field['std']) : '' ) );
+	}
+	
 	// Init toggle element
 	if( isset($field['toggle']) /*&& ( $field['toggle'] == 'closed' || $field['toggle'] == 'yes' || $field['toggle'] == true  || $field['toggle'] !== false )*/ ){
 		switch ( $field['type'] ) {
@@ -477,6 +487,8 @@ if ( ! function_exists( 'mblzr_display_form_elements' ) ){ function mblzr_displa
 		default:
 			$field['text_dir'] = 'ltr';
 	}
+	
+	$html = '';
 
 /**
  * Start Options for file type
@@ -486,97 +498,126 @@ switch ( $field['type'] ) {
 ////////////////////////////////////////////////////////////////////////////
 
 case "open":
-?>
-<table class="wp-list-table widefat fixed bookmarks">
 
-<?php
+	$html .= '<table class="wp-list-table widefat fixed bookmarks">';
+
 break;
 
 ////////////////////////////////////////////////////////////////////////////
 
 case "close":
-?>
 
-</table>
-<br/><br/>
+	$html .= '</table>';
+	$html .= '<br/><br/>';
 
-<?php
 break;
 
 ////////////////////////////////////////////////////////////////////////////
 
 case "open_toggle":
-?>
-<div class="postbox<?php if( isset($field['toggle']) && ( $field['toggle'] == 'close' || $field['toggle'] == 'closed' || $field['toggle'] == false ) ){ echo ' closed'; } ?>">
 
-<?php
+	$html .= '<div class="postbox';
+	if( isset($field['toggle']) && ( $field['toggle'] == 'close' || $field['toggle'] == 'closed' || $field['toggle'] == false ) ){
+		$html .= ' closed';
+	}
+	$html .= '">';
+
 break;
 
 ////////////////////////////////////////////////////////////////////////////
 
 case "close_toggle":
-?>
-		</table>
-		<br/>
-		<div class="clear"></div>
-	</div>
-</div>
-<br/>
 
-<?php
+			$html .= '</table>';
+			$html .= '<br/>';
+			$html .= '<div class="clear"></div>';
+		$html .= '</div>';
+	$html .= '</div>';
+	$html .= '<br/>';
+
+break;
+
+////////////////////////////////////////////////////////////////////////////
+
+case "sep":
+case "hr":
+
+	$html .= '<br />';
+	$html .= '<hr />';
+	$html .= '<br /><br/>';
+
 break;
 
 ////////////////////////////////////////////////////////////////////////////
 
 case "title":
-?>
 
-<thead>
-	<tr>
-		<th<?php if( isset($field['class']) && !empty($field['class']) ){ echo ' class="' . $field['class'] . '"'; } ?><?php if( isset($field['name']) && !empty($field['name']) ){ echo ' name="' . $field['name'] . '"'; } ?><?php if( isset($field['id']) && !empty($field['id']) ){ echo ' id="' . $field['id'] . '"'; } ?>><?php echo $field['label']; ?></th>
-	</tr>
-</thead>
+	$html .= '<thead>';
+		$html .= '<tr>';
+			$html .= '<th';
+			if( isset($field['class']) && !empty($field['class']) ){
+				$html .= ' class="' . $field['class'] . '"';
+			}
+			if( isset($field['name']) && !empty($field['name']) ){
+				$html .= ' name="' . $field['name'] . '"';
+			}
+			if( isset($field['id']) && !empty($field['id']) ){
+				$html .= ' id="' . $field['id'] . '"';
+			}
+			$html .= '>';
+				$html .= $field['label'];
+			$html .= '</th>';
+		$html .= '</tr>';
+	$html .= '</thead>';
 
-<?php
 break;
 
 ////////////////////////////////////////////////////////////////////////////
 
 case "title_toggle":
-?>
 
-<div class="handlediv" title="<?php echo $field['title']; ?>"<?php if( isset($field['name']) && !empty($field['name']) ){ echo ' name="' . $field['name'] . '"'; } ?><?php if( isset($field['id']) && !empty($field['id']) ){ echo ' id="' . $field['id'] . '"'; } ?>><br /></div><h3 class="hndle"><span><?php echo $field['label']; ?></span></h3>
-<div class="inside">
-	<table class="form-table">
-
-<?php
+	$html .= '<div class="handlediv" title="' . $field['title'] . '"';
+	if( isset($field['name']) && !empty($field['name']) ){
+		$html .= ' name="' . $field['name'] . '"';
+	}
+	if( isset($field['id']) && !empty($field['id']) ){
+		$html .= ' id="' . $field['id'] . '"';
+	}
+	$html .= '>';
+	$html .= '<br />';
+	$html .= '</div>';
+	$html .= '<h3 class="hndle"><span>' . $field['label'] . '</span></h3>';
+	$html .= '<div class="inside">';
+		$html .= '<table class="form-table">';
+	
 break;
 
 ////////////////////////////////////////////////////////////////////////////
 
 case "open_options":
 case "open_option":
-?>
-<tbody>
-	<tr>
-		<td<?php if( isset($field['class']) && !empty($field['class']) ){ echo ' class="' . $field['class'] . '"'; } ?>>
 
-			<table class="form-table mblzr_metabox">
+	$html .= '<tbody>';
+	$html .= '<tr>';
+	$html .= '<td';
+	if( isset($field['class']) && !empty($field['class']) ){
+		$html .= ' class="' . $field['class'] . '"';
+	}
+	$html .= '>';
+	$html .= '<table class="form-table mblzr_metabox">';
 
-<?php
 break;
 
 ////////////////////////////////////////////////////////////////////////////
 
 case "close_options":
 case "close_option":
-?>
-			</table>
-		<br/>
+				$html .= '</table>';
+				$html .= '<br/>';
+			$html .= '</td>';
+		$html .= '</tr>';
+	$html .= '</tbody>';
 
-	</td></tr>
-</tbody>
-<?php
 break;
 
 ////////////////////////////////////////////////////////////////////////////
@@ -591,12 +632,21 @@ break;
 
 case 'wysiwyg':
 case 'wp-editor':
-?>
 
-<tr>
-	<th scope="row"><label for="<?php echo $field['id']; ?>"><?php echo $field['label']; ?></label></th>
-	<td<?php if( isset($field['class']) && !empty($field['class']) ){ echo ' class="' . $field['class'] . '"'; } ?>><?php
-
+	$html .= '<tr>';
+	
+		if( $field['label_hide'] !== true ){
+			$html .= '<th scope="row">';
+				$html .= '<label for="' . $field['id'] . '">' . $field['label'] . '</label>';
+			$html .= '</th>';
+		}
+		
+		$html .= '<td';
+		if( isset($field['class']) && !empty($field['class']) ){
+			$html .= ' class="' . $field['class'] . '"';
+		}
+		$html .= '>';
+		
 		if( isset($field['options']) && is_array($field['options']) && !isset($field['wp_editor_settings']) ){
 			$field['wp_editor_settings'] = $field['options'];
 		}
@@ -606,7 +656,7 @@ case 'wp-editor':
 		}
 
 		// Use nonce for verification
-		wp_nonce_field( plugin_basename( __FILE__ ), 'wp_mobilizer' );
+		$_wp_nonce = wp_nonce_field( plugin_basename( __FILE__ ), 'wp_mobilizer' );
 
 		// Settings that we'll pass to wp_editor
 		/*$field['wp_editor_settings'] = array (
@@ -614,159 +664,191 @@ case 'wp-editor':
 			'quicktags' => true,
 		);*/
 
-		wp_editor( ( $get_value != "" ? stripslashes($get_value) : stripslashes($field['std']) ), $field['id'], $field['wp_editor_settings'] );
+		ob_start();
+			wp_editor( ( $get_value != "" ? stripslashes($get_value) : stripslashes($field['std']) ), $field['id'], $field['wp_editor_settings'] );
+			$html .= ob_get_clean();
+		//ob_end_clean(); // toujours fermer et vider le tampon
 
-	?></td>
-</tr>
-<?php echo mblzr_end_option_separator( $field['desc'] ); ?>
+		$html .= '</td>';
+	$html .= '</tr>';
+	$html .= mblzr_end_option_separator( $field['desc'] );
 
-<?php
 break;
 
 ////////////////////////////////////////////////////////////////////////////
 
 case 'textarea':
 
-?>
+	$html .= '<tr>';
+		if( $field['label_hide'] !== true ){
+			$html .= '<th scope="row">';
+				$html .= '<label for="' . $field['id'] . '">' . $field['label'] . '</label>';
+			$html .= '</th>';
+		}
+		$html .= '<td';
+			if( isset($field['class']) && !empty($field['class']) ){
+				$html .= ' class="' . $field['class'] . '"';
+				}
+		$html .= '>';
+			$html .= '<textarea name="' . $field['name'] . '" id="' . $field['id'] . '" style="width:400px; height:200px;" cols="" rows="">';
+				if ( !is_bool($get_value) && !empty($get_value) ) {
+					$html .= stripslashes($get_value); 
+				}else {
+					$html .= stripslashes($field['std']);
+				}
+			$html .= '</textarea>';
+		$html .= '</td>';
+	$html .= '</tr>';
+	
+	$html .= mblzr_end_option_separator( $field['desc'] );;
 
-<tr>
-	<th scope="row"><label for="<?php echo $field['id']; ?>"><?php echo $field['label']; ?></label></th>
-	<td<?php if( isset($field['class']) && !empty($field['class']) ){ echo ' class="' . $field['class'] . '"'; } ?>><textarea name="<?php echo $field['name']; ?>" id="<?php echo $field['id']; ?>" style="width:400px; height:200px;" cols="" rows=""><?php if ( !is_bool($get_value) && !empty($get_value) ) { echo stripslashes($get_value); } else { echo stripslashes($field['std']); } ?></textarea></td>
-</tr>
-
-<?php echo mblzr_end_option_separator( $field['desc'] ); ?>
-
-<?php
 break;
 
 ////////////////////////////////////////////////////////////////////////////
 
 case 'select':
-?>
-<tr>
-	<th scope="row"><label for="<?php echo $field['id']; ?>"><?php echo $field['label']; ?></label></th>
-	<td<?php if( isset($field['class']) && !empty($field['class']) ){ echo ' class="' . $field['class'] . '"'; } ?>><?php
 
-	if( isset($field['options']) && is_array($field['options']) && count($field['options']) > 0 ){
-
-		?><select style="width:240px;" name="<?php echo $field['name']; ?>" id="<?php echo $field['id']; ?>">
-			<?php $i = 1; foreach ( $field['options'] as $key => $option ) { ?>
-				<option<?php
-
+	$html .= '<tr>';
+		if( $field['label_hide'] !== true ){
+			$html .= '<th scope="row">';
+				$html .= '<label for="' . $field['id'] . '">' . $field['label'] . '</label>';
+			$html .= '</th>';
+		}
+		$html .= '<td';
+			if( isset($field['class']) && !empty($field['class']) ){
+				$html .= ' class="' . $field['class'] . '"';
+			}
+		$html .= '>';
+		if( isset($field['options']) && is_array($field['options']) && count($field['options']) > 0 ){
+			$html .= '<select style="width:240px;" name="' . $field['name'] . '" id="' . $field['id'] . '">';
+				$i = 1;
+				foreach ( $field['options'] as $key => $option ) {
+					$html .= '<option';
 						// Set the value
 						if( isset($field['options_key_value']) && $field['options_key_value'] == true ){
-							echo ' value="' . ( $key == $field['std'] ? $field['std_value'] : $key ) . '"';
+							$html .= ' value="' . ( $key == $field['std'] ? $field['std_value'] : $key ) . '"';
 						}else{
-							echo ' value="' . ( $option['value'] == $field['std'] ? $field['std_value'] : $option['value'] ) . '"';
+							$html .= ' value="' . ( $option['value'] == $field['std'] ? $field['std_value'] : $option['value'] ) . '"';
 						}
 
 						// Check if selected.
 						$checked = false;
 						if( isset($field['options_key_value']) && $field['options_key_value'] == true && !is_bool($get_value) && $get_value == $key ){
-							echo ' selected="selected"';
+							$html .= ' selected="selected"';
 						} elseif ( ( $get_value == false || empty($get_value) ) && ( isset($field['options_key_value']) && $field['options_key_value'] == true ? $key : ( isset($option['value']) ? $option['value'] : time() ) ) == $field['std']) {
-							echo ' selected="selected"';
+							$html .= ' selected="selected"';
 						} elseif ( isset($option['value']) && !is_bool($get_value) && $option['value'] == $get_value ) {
-							echo ' selected="selected"';
+							$html .= ' selected="selected"';
 						} elseif ( ( $get_value == false || empty($get_value) ) && isset($option['value']) && $option['value'] == $field['std'] ) {
-							echo ' selected="selected"';
+							$html .= ' selected="selected"';
 						}
-
-					?>><?php
-					if( isset($field['options_key_value']) && $field['options_key_value'] == true ){
-						echo ( !empty($option) ? $option : $key );
-					}else{
-						echo ( isset($option['label']) && !empty($option['label']) ? $option['label'] : $option['value'] );
-					}
-					?></option><?php
-
+					$html .= '>';
+					
+						if( isset($field['options_key_value']) && $field['options_key_value'] == true ){
+							$html .= ( !empty($option) ? $option : $key );
+						}else{
+							$html .= ( isset($option['label']) && !empty($option['label']) ? $option['label'] : $option['value'] );
+						}
+						
+					$html .= '</option>';
+					
 					$i++;
+					
 				}
+				
+			$html .= '</select>';
+			
+		}
+		
+		$html .= '</td>';
+	$html .= '</tr>';
+	
+	$html .= mblzr_end_option_separator( $field['desc'] );;
 
-			?></select><?php
-
-	}
-
-	?></td>
-</tr>
-
-<?php echo mblzr_end_option_separator( $field['desc'] ); ?>
-<?php
 break;
 
 ////////////////////////////////////////////////////////////////////////////
 
 case 'on-off':
-?>
-<tr>
-	<th scope="row"><label><?php echo $field['label']; ?></label></th>
-	<td<?php if( isset($field['class']) && !empty($field['class']) ){ echo ' class="' . $field['class'] . '"'; } ?>><?php
 
-	$html = '';
-	if ( !is_bool($get_value) && !empty($get_value) ) { $meta = stripslashes($get_value); } else { $meta = stripslashes($field['std']); }
+	$html .= '<tr>';
+		if( $field['label_hide'] !== true ){
+			$html .= '<th scope="row">';
+				$html .= '<label>' . $field['label'] . '</label>';
+			$html .= '</th>';
+		}
+		$html .= '<td';
+			if( isset($field['class']) && !empty($field['class']) ){
+				$html .= ' class="' . $field['class'] . '"';
+			}
+		$html .= '>';
+			if ( !is_bool($get_value) && !empty($get_value) ) { $meta = stripslashes($get_value); } else { $meta = stripslashes($field['std']); }
 
-
-	$no_selected = $yes_selected = ' selected';
-	$no_checked = $yes_checked = ' checked="true"';
-	if( !empty($meta) && ( $meta == $field['value_yes'] ) ){
-		$no_selected = '';
-		$no_checked = '';
-	}else{
-		if( empty($meta) ){
-
-			if( $field['value_yes'] == $field['def_option_value'] ){
+			$no_selected = $yes_selected = ' selected';
+			$no_checked = $yes_checked = ' checked="true"';
+			if( !empty($meta) && ( $meta == $field['value_yes'] ) ){
 				$no_selected = '';
 				$no_checked = '';
 			}else{
-				$yes_selected = '';
-				$yes_checked = '';
+				if( empty($meta) ){
+
+					if( $field['value_yes'] == $field['def_option_value'] ){
+						$no_selected = '';
+						$no_checked = '';
+					}else{
+						$yes_selected = '';
+						$yes_checked = '';
+					}
+
+				}else{
+					$yes_selected = '';
+					$yes_checked = '';
+				}
 			}
 
-		}else{
-			$yes_selected = '';
-			$yes_checked = '';
-		}
-	}
+			$html .= '
+			<div class="my_meta_control">
+				<p class="field switch">
+					<label for="' . $field['id'] . '_' . $field['value_yes'] . '" class="cb-enable' . $yes_selected . '"><span>' . $field['label_yes'] . '</span></label>
+					<label for="' . $field['id'] . '_' . $field['value_no'] . '" class="cb-disable' . $no_selected . '"><span>' . $field['label_no'] . '</span></label>
+					<span class="radio">
+						<input type="radio" id="' . $field['id'] . '_' . $field['value_yes'] . '" name="' . $field['name'] . '"' . $yes_checked . ' value="' . $field['value_yes'] . '" />' . $field['label_yes'] . '
+						<input type="radio" id="' . $field['id'] . '_' . $field['value_no'] . '" name="' . $field['name'] . '"' . $no_checked . ' value="' . $field['value_no'] . '" />' . $field['label_no'] . '
+					</span>
+				</p>
+			</div>
+			<div class="clear"></div>
+			';
+			
+		$html .= '</td>';
+	$html .= '</tr>';
+	
+	$html .= mblzr_end_option_separator( $field['desc'] );;
 
-	$html .= '
-	<div class="my_meta_control">
-		<p class="field switch">
-			<label for="' . $field['id'] . '_' . $field['value_yes'] . '" class="cb-enable' . $yes_selected . '"><span>' . $field['label_yes'] . '</span></label>
-			<label for="' . $field['id'] . '_' . $field['value_no'] . '" class="cb-disable' . $no_selected . '"><span>' . $field['label_no'] . '</span></label>
-			<span class="radio">
-				<input type="radio" id="' . $field['id'] . '_' . $field['value_yes'] . '" name="' . $field['name'] . '"' . $yes_checked . ' value="' . $field['value_yes'] . '" />' . $field['label_yes'] . '
-				<input type="radio" id="' . $field['id'] . '_' . $field['value_no'] . '" name="' . $field['name'] . '"' . $no_checked . ' value="' . $field['value_no'] . '" />' . $field['label_no'] . '
-			</span>
-		</p>
-	</div>
-	<div class="clear"></div>
-	';
-
-	echo $html;
-
-
-?></td>
-</tr>
-
-<?php echo mblzr_end_option_separator( $field['desc'] ); ?>
-<?php
 break;
 
 ////////////////////////////////////////////////////////////////////////////
 
 case "checkbox":
-?>
-<tr>
-	<th scope="row"><label for="<?php echo $field['id']; ?>"><?php echo $field['label']; ?></label></th>
-	<td<?php if( isset($field['class']) && !empty($field['class']) ){ echo ' class="' . $field['class'] . '"'; } ?>>
-		<?php if( get_option($field['id']) ){ $checked = "checked=\"checked\""; }else{ $checked = "";} ?>
-		<input type="checkbox" name="<?php echo $field['name']; ?>" id="<?php echo $field['id']; ?>" value="true" <?php echo $checked; ?> />
-	</td>
-</tr>
 
-<?php echo mblzr_end_option_separator( $field['desc'] ); ?>
+	$html .= '<tr>';
+		if( $field['label_hide'] !== true ){
+			$html .= '<th scope="row">';
+				$html .= '<label for="' . $field['id'] . '">' . $field['label'] . '</label>';
+			$html .= '</th>';
+		}
+		$html .= '<td';
+			if( isset($field['class']) && !empty($field['class']) ){
+				$html .= ' class="' . $field['class'] . '"';
+			}
+		$html .= '>';
+			if( get_option($field['id']) ){ $checked = "checked=\"checked\""; }else{ $checked = "";}
+			$html .= '<input type="checkbox" name="' . $field['name'] . '" id="' . $field['id'] . '" value="true" ' . $checked . ' />';
+		$html .= '</td>';
+	$html .= '</tr>';
+	
+	$html .= mblzr_end_option_separator( $field['desc'] );
 
-<?php
 break;
 
 ////////////////////////////////////////////////////////////////////////////
@@ -774,74 +856,94 @@ break;
 case "save":
 case "save_options":
 case "save_option":
-?>
-<tr valign="top">
-	<th scope="row">&nbsp;</th>
-	<td<?php if( isset($field['class']) && !empty($field['class']) ){ echo ' class="' . $field['class'] . '"'; } ?>>
-		<input name="save" type="submit" class="button button-primary button-large" value="<?php _e('Save Changes') ?>" />
-		<input type="hidden" name="action" value="save" />
-		<input type="hidden" name="action_save_theme" value="<?php echo $themename; ?>" />
-	</td>
-</tr>
-<?php
+
+	$html .= '<tr valign="top">';
+		$html .= '<th scope="row">&nbsp;</th>';
+		$html .= '<td';
+			if( isset($field['class']) && !empty($field['class']) ){
+				$html .= ' class="' . $field['class'] . '"';
+			}
+		$html .= '>';
+			$html .= '<input name="save" type="submit" class="button button-primary button-large" value="' . __('Save Changes') . '" />';
+			$html .= '<input type="hidden" name="action" value="save" />';
+			$html .= '<input type="hidden" name="action_save_theme" value="' . $themename . '" />';
+		$html .= '</td>';
+	$html .= '</tr>';
+
 break;
 
 ////////////////////////////////////////////////////////////////////////////
 
 case 'title_h2':
-
-?>
-<tr>
-	<th scope="row" colspan="2"<?php if( isset($field['class']) && !empty($field['class']) ){ echo ' class="' . $field['class'] . '"'; } ?>><h2><?php echo $field['label']; ?></h2></th>
-</tr>
-
-<?php echo mblzr_end_option_separator( $field['desc'] ); ?>
-
-<?php
-break;
-
-////////////////////////////////////////////////////////////////////////////
-
 case 'title_h3':
-?>
-<tr>
-	<th scope="row" colspan="2"<?php if( isset($field['class']) && !empty($field['class']) ){ echo ' class="' . $field['class'] . '"'; } ?>><h3><?php echo $field['label']; ?></h3></th>
-</tr>
-
-<?php echo mblzr_end_option_separator( $field['desc'] ); ?>
-
-<?php
+case 'title_h4':
+case 'title_h5':
+case 'title_h6':
+	
+	$html_tag = $field['type'];
+	$html_tag = str_replace('title_','', $html_tag);
+	
+	$html .= '<tr>';
+		$html .= '<th scope="row" colspan="2"';
+			if( isset($field['class']) && !empty($field['class']) ){
+				$html .= ' class="' . $field['class'] . '"';
+			}
+		$html .= '>';
+			$html .= '<' . $html_tag . '>' . $field['label'] . '</' . $html_tag . '>';
+		$html .= '</th>';
+	$html .= '</tr>';
+	
+	$html .= mblzr_end_option_separator( $field['desc'] );
+	
 break;
 
 ////////////////////////////////////////////////////////////////////////////
 
 case 'text':
-?>
 
-<tr>
-	<th scope="row"><label for="<?php echo $field['id']; ?>"><?php echo $field['label']; ?></label></th>
-	<td<?php if( isset($field['class']) && !empty($field['class']) ){ echo ' class="' . $field['class'] . '"'; } ?>><input size="45" name="<?php echo $field['name']; ?>" id="<?php echo $field['id']; ?>" type="<?php echo $field['type']; ?>" value="<?php if ( !is_bool($get_value) && !empty($get_value) ) { echo stripslashes($get_value); } else { echo stripslashes($field['std']); } ?>" /></td>
-</tr>
-
-<?php echo mblzr_end_option_separator( $field['desc'] ); ?>
-
-<?php
+	$html .= '<tr>';
+		if( $field['label_hide'] !== true ){
+			$html .= '<th scope="row">';
+				$html .= '<label for="' . $field['id'] . '">' . $field['label'] . '</label>';
+			$html .= '</th>';
+		}
+		$html .= '<td';
+			if( isset($field['class']) && !empty($field['class']) ){
+				$html .= ' class="' . $field['class'] . '"';
+			}
+		$html .= '>';
+			$html .= '<input size="45" name="' . $field['name'] . '" id="' . $field['id'] . '" type="' . $field['type'] . '" value="';
+				if ( !is_bool($get_value) && !empty($get_value) ) {
+					$html .= stripslashes($get_value);
+				} else {
+					$html .= stripslashes($field['std']);
+				}
+			$html .= '" />';
+		$html .= '</td>';
+	$html .= '</tr>';
+	
+	$html .= mblzr_end_option_separator( $field['desc'] );
+	
 break;
 
 ////////////////////////////////////////////////////////////////////////////
 
 case 'text_small':
 
-	echo '<tr>';
-		echo '<th scope="row"><label for="' . $field['id'] . '">' . $field['label'] . '</label></th>';
-		echo '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
+	$html .= '<tr>';
+		if( $field['label_hide'] !== true ){
+			$html .= '<th scope="row">';
+				$html .= '<label for="' . $field['id'] . '">' . $field['label'] . '</label>';
+			$html .= '</th>';
+		}
+		$html .= '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
 
-			echo '<input class="mblzr_text_small" type="text" size="15" name="' . $field['name'] . '" id="' . $field['id'] . '" value="' . ( !is_bool($get_value) && !empty($get_value) ? $get_value : $field['std'] ) . '" />';
+			$html .= '<input class="mblzr_text_small" type="text" size="15" name="' . $field['name'] . '" id="' . $field['id'] . '" value="' . ( !is_bool($get_value) && !empty($get_value) ? $get_value : $field['std'] ) . '" />';
 
-		echo '</td>';
-	echo '</tr>';
+		$html .= '</td>';
+	$html .= '</tr>';
 
-	echo mblzr_end_option_separator( $field['desc'] );
+	$html .= mblzr_end_option_separator( $field['desc'] );
 
 break;
 
@@ -849,105 +951,129 @@ break;
 
 case 'text_medium':
 
-	echo '<tr>';
-		echo '<th scope="row"><label for="' . $field['id'] . '">' . $field['label'] . '</label></th>';
-		echo '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
+	$html .= '<tr>';
+		if( $field['label_hide'] !== true ){
+			$html .= '<th scope="row">';
+				$html .= '<label for="' . $field['id'] . '">' . $field['label'] . '</label>';
+			$html .= '</th>';
+		}
+		$html .= '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
 
-			echo '<input class="mblzr_text_medium" size="30" type="text" name="' . $field['name'] . '" id="' . $field['id'], '" value="' . esc_attr( !is_bool($get_value) && !empty($get_value) ? $get_value : $field['std'] ) . '" />';
+			$html .= '<input class="mblzr_text_medium" size="30" type="text" name="' . $field['name'] . '" id="' . $field['id']. '" value="' . esc_attr( !is_bool($get_value) && !empty($get_value) ? $get_value : $field['std'] ) . '" />';
 
-		echo '</td>';
-	echo '</tr>';
+		$html .= '</td>';
+	$html .= '</tr>';
 
-	echo mblzr_end_option_separator( $field['desc'] );
+	$html .= mblzr_end_option_separator( $field['desc'] );
 
 break;
 
 ////////////////////////////////////////////////////////////////////////////
 
 case 'text_date':
-	echo '<tr>';
-		echo '<th scope="row"><label for="' . $field['id'] . '">' . $field['label'] . '</label></th>';
-		echo '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
+	$html .= '<tr>';
+		if( $field['label_hide'] !== true ){
+			$html .= '<th scope="row">';
+				$html .= '<label for="' . $field['id'] . '">' . $field['label'] . '</label>';
+			$html .= '</th>';
+		}
+		$html .= '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
 
-			echo '<input class="mblzr_text_small mblzr_datepicker" size="45" type="text" name="' . $field['name'] . '" id="' . $field['id'] . '" value="' . esc_attr( !is_bool($get_value) && !empty($get_value) ? $get_value : $field['std'] ) . '" />';
+			$html .= '<input class="mblzr_text_small mblzr_datepicker" size="45" type="text" name="' . $field['name'] . '" id="' . $field['id'] . '" value="' . esc_attr( !is_bool($get_value) && !empty($get_value) ? $get_value : $field['std'] ) . '" />';
 
-		echo '</td>';
-	echo '</tr>';
+		$html .= '</td>';
+	$html .= '</tr>';
 
-	echo mblzr_end_option_separator( $field['desc'] );
+	$html .= mblzr_end_option_separator( $field['desc'] );
 
 break;
 
 ////////////////////////////////////////////////////////////////////////////
 
 case 'text_date_timestamp':
-	echo '<tr>';
-		echo '<th scope="row"><label for="' . $field['id'] . '">' . $field['label'] . '</label></th>';
-		echo '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
+	$html .= '<tr>';
+		if( $field['label_hide'] !== true ){
+			$html .= '<th scope="row">';
+				$html .= '<label for="' . $field['id'] . '">' . $field['label'] . '</label>';
+			$html .= '</th>';
+		}
+		$html .= '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
 
-			echo '<input class="mblzr_text_small mblzr_datepicker" size="45" type="text" name="' . $field['name'] . '" id="' . $field['id'] . '" value="' . esc_attr( !is_bool($get_value) && !empty($get_value) ? date( 'm\/d\/Y', $get_value ) : $field['std'] ) . '" />';
+			$html .= '<input class="mblzr_text_small mblzr_datepicker" size="45" type="text" name="' . $field['name'] . '" id="' . $field['id'] . '" value="' . esc_attr( !is_bool($get_value) && !empty($get_value) ? date( 'm\/d\/Y', $get_value ) : $field['std'] ) . '" />';
 
-		echo '</td>';
-	echo '</tr>';
+		$html .= '</td>';
+	$html .= '</tr>';
 
-	echo mblzr_end_option_separator( $field['desc'] );
+	$html .= mblzr_end_option_separator( $field['desc'] );
 
 break;
 
 ////////////////////////////////////////////////////////////////////////////
 
 case 'text_datetime_timestamp':
-	echo '<tr>';
-		echo '<th scope="row"><label for="' . $field['id'] . '">' . $field['label'] . '</label></th>';
-		echo '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
+	$html .= '<tr>';
+		if( $field['label_hide'] !== true ){
+			$html .= '<th scope="row">';
+				$html .= '<label for="' . $field['id'] . '">' . $field['label'] . '</label>';
+			$html .= '</th>';
+		}
+		$html .= '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
 
-			echo '<input size="20" class="mblzr_text_small mblzr_datepicker" type="text" name="' . $field['name'] . '[date]" id="' . $field['id'] . '_date" value="' . esc_attr( !empty($get_value) ? date( 'm\/d\/Y', $get_value ) : date( 'm\/d\/Y', $field['std'] ) ) . '" />';
-	echo '<input class="mblzr_timepicker text_time" type="text" name="' . $field['name'] . '[time]" id="' . $field['id'] . '_time" value="' . esc_attr( !is_bool($get_value) && !empty($get_value) ? date( 'h:i A', $get_value ) : date( 'H:i', $field['std'] ) ) . '" />';
+			$html .= '<input size="20" class="mblzr_text_small mblzr_datepicker" type="text" name="' . $field['name'] . '[date]" id="' . $field['id'] . '_date" value="' . esc_attr( !empty($get_value) ? date( 'm\/d\/Y', $get_value ) : date( 'm\/d\/Y', $field['std'] ) ) . '" />';
+	$html .= '<input class="mblzr_timepicker text_time" type="text" name="' . $field['name'] . '[time]" id="' . $field['id'] . '_time" value="' . esc_attr( !is_bool($get_value) && !empty($get_value) ? date( 'h:i A', $get_value ) : date( 'H:i', $field['std'] ) ) . '" />';
 
-		echo '</td>';
-	echo '</tr>';
+		$html .= '</td>';
+	$html .= '</tr>';
 
-	echo mblzr_end_option_separator( $field['desc'] );
+	$html .= mblzr_end_option_separator( $field['desc'] );
 
 break;
 
 ////////////////////////////////////////////////////////////////////////////
 
 case 'text_time':
-	echo '<tr>';
-		echo '<th scope="row"><label for="' . $field['id'] . '">' . $field['label'] . '</label></th>';
-		echo '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
+	$html .= '<tr>';
+		if( $field['label_hide'] !== true ){
+			$html .= '<th scope="row">';
+				$html .= '<label for="' . $field['id'] . '">' . $field['label'] . '</label>';
+			$html .= '</th>';
+		}
+		$html .= '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
 
-			echo '<input class="mblzr_timepicker text_time" type="text" size="45" name="' . $field['name'] . '" id="' . $field['id'] . '" value="' . esc_attr( ( !is_bool($get_value) && !empty($get_value) ? $get_value : $field['std'] ) ) . '" />';
+			$html .= '<input class="mblzr_timepicker text_time" type="text" size="45" name="' . $field['name'] . '" id="' . $field['id'] . '" value="' . esc_attr( ( !is_bool($get_value) && !empty($get_value) ? $get_value : $field['std'] ) ) . '" />';
 
-		echo '</td>';
-	echo '</tr>';
+		$html .= '</td>';
+	$html .= '</tr>';
 
-	echo mblzr_end_option_separator( $field['desc'] );
+	$html .= mblzr_end_option_separator( $field['desc'] );
 
 break;
 
 ////////////////////////////////////////////////////////////////////////////
 
 case 'text_money':
-	echo '<tr>';
-		echo '<th scope="row"><label for="' . $field['id'] . '">' . $field['label'] . '</label></th>';
-		echo '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
+	$html .= '<tr>';
+		if( $field['label_hide'] !== true ){
+			$html .= '<th scope="row">';
+				$html .= '<label for="' . $field['id'] . '">' . $field['label'] . '</label>';
+			$html .= '</th>';
+		}
+		$html .= '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
 
 			if( $field['text_dir'] == 'ltr' ){
-				echo $field['sign'] . ' ';
+				$html .= $field['sign'] . ' ';
 			}
 
-			echo '<input class="mblzr_text_money" type="text" size="45" name="' . $field['name'] . '" id="', $field['id'] . '" value="' . esc_attr( ( !is_bool($get_value) && !empty($get_value) ? $get_value : $field['std'] ) ) . '" />';
+			$html .= '<input class="mblzr_text_money" type="text" size="45" name="' . $field['name'] . '" id="' . $field['id'] . '" value="' . esc_attr( ( !is_bool($get_value) && !empty($get_value) ? $get_value : $field['std'] ) ) . '" />';
 
 			if( $field['text_dir'] == 'rtl' ){
-				echo ' ' . $field['sign'];
+				$html .= ' ' . $field['sign'];
 			}
 
-		echo '</td>';
-	echo '</tr>';
+		$html .= '</td>';
+	$html .= '</tr>';
 
-	echo mblzr_end_option_separator( $field['desc'] );
+	$html .= mblzr_end_option_separator( $field['desc'] );
 
 break;
 
@@ -961,47 +1087,59 @@ case 'colorpicker':
 	elseif ( ! preg_match( '/^#' . $hex_color . '/i', $get_value ) ) // Value doesn't match #123abc, so sanitize to just #.
 		$get_value = "#";
 
-	echo '<tr>';
-		echo '<th scope="row"><label for="' . $field['id'] . '">' . $field['label'] . '</label></th>';
-		echo '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
+	$html .= '<tr>';
+		if( $field['label_hide'] !== true ){
+			$html .= '<th scope="row">';
+				$html .= '<label for="' . $field['id'] . '">' . $field['label'] . '</label>';
+			$html .= '</th>';
+		}
+		$html .= '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
 
-			echo '<input class="mblzr_colorpicker mblzr_text_small" size="20" type="text" name="' . $field['name'] . '" id="' . $field['id'] . '" value="' . ( !is_bool($get_value) && !empty($get_value) ? $get_value : $field['std'] ) . '" />';
+			$html .= '<input class="mblzr_colorpicker mblzr_text_small" size="20" type="text" name="' . $field['name'] . '" id="' . $field['id'] . '" value="' . ( !is_bool($get_value) && !empty($get_value) ? $get_value : $field['std'] ) . '" />';
 
-		echo '</td>';
-	echo '</tr>';
+		$html .= '</td>';
+	$html .= '</tr>';
 
-	echo mblzr_end_option_separator( $field['desc'] );
+	$html .= mblzr_end_option_separator( $field['desc'] );
 
 break;
 
 ////////////////////////////////////////////////////////////////////////////
 
 case 'textarea_small':
-	echo '<tr>';
-		echo '<th scope="row"><label for="' . $field['id'] . '">' . $field['label'] . '</label></th>';
-		echo '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
+	$html .= '<tr>';
+		if( $field['label_hide'] !== true ){
+			$html .= '<th scope="row">';
+				$html .= '<label for="' . $field['id'] . '">' . $field['label'] . '</label>';
+			$html .= '</th>';
+		}
+		$html .= '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
 
-			echo '<textarea name="' . $field['name'] . '" id="' . $field['id'] . '" cols="60" rows="4">' . ( !is_bool($get_value) && !empty($get_value) ? $get_value : $field['std'] ) . '</textarea>';
+			$html .= '<textarea name="' . $field['name'] . '" id="' . $field['id'] . '" cols="60" rows="4">' . ( !is_bool($get_value) && !empty($get_value) ? $get_value : $field['std'] ) . '</textarea>';
 
-		echo '</td>';
-	echo '</tr>';
+		$html .= '</td>';
+	$html .= '</tr>';
 
-	echo mblzr_end_option_separator( $field['desc'] );
+	$html .= mblzr_end_option_separator( $field['desc'] );
 
 break;
 
 ////////////////////////////////////////////////////////////////////////////
 
 case 'textarea_code':
-	echo '<tr>';
-		echo '<th scope="row"><label for="' . $field['id'] . '">' . $field['label'] . '</label></th>';
-		echo '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
-			echo '<textarea name="' . $field['name'] . '" id="' . $field['id'] . '" cols="60" rows="10" class="mblzr_textarea_code">' . ( !is_bool($get_value) && !empty($get_value) ? $get_value : $field['std'] ) . '</textarea>';
+	$html .= '<tr>';
+		if( $field['label_hide'] !== true ){
+			$html .= '<th scope="row">';
+				$html .= '<label for="' . $field['id'] . '">' . $field['label'] . '</label>';
+			$html .= '</th>';
+		}
+		$html .= '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
+			$html .= '<textarea name="' . $field['name'] . '" id="' . $field['id'] . '" cols="60" rows="10" class="mblzr_textarea_code">' . ( !is_bool($get_value) && !empty($get_value) ? $get_value : $field['std'] ) . '</textarea>';
 
-		echo '</td>';
-	echo '</tr>';
+		$html .= '</td>';
+	$html .= '</tr>';
 
-	echo mblzr_end_option_separator( $field['desc'] );
+	$html .= mblzr_end_option_separator( $field['desc'] );
 
 break;
 
@@ -1009,16 +1147,20 @@ break;
 
 case 'radio-inline':
 case 'radio_inline':
-	echo '<tr>';
-		echo '<th scope="row"><label for="' . $field['id'] . '">' . $field['label'] . '</label></th>';
-		echo '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
+	$html .= '<tr>';
+		if( $field['label_hide'] !== true ){
+			$html .= '<th scope="row">';
+				$html .= '<label for="' . $field['id'] . '">' . $field['label'] . '</label>';
+			$html .= '</th>';
+		}
+		$html .= '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
 
 			if( empty( $get_value ) && !empty( $field['std'] ) ) $get_value = $field['std'];
-			echo '<div class="mblzr_radio_inline">';
+			$html .= '<div class="mblzr_radio_inline">';
 			$i = 1;
 			foreach ($field['options'] as $key => $option ) {
 
-				echo '<div class="mblzr_radio_inline_option">';
+				$html .= '<div class="mblzr_radio_inline_option">';
 					// Append `[]` to the name to get multiple values
 					// Use in_array() to check whether the current option should be checked
 
@@ -1050,19 +1192,19 @@ case 'radio_inline':
 						$checked = true;
 					}
 
-					echo '<input type="radio" name="' . $field['name'] . '" id="' . $field['id'] . $i . '" value="' . $option_value . '"' . checked( $checked, true, false ) . ' />';
-					echo '<label for="' . $field['id']  . $i . '">' . $option_label . '</label>';
+					$html .= '<input type="radio" name="' . $field['name'] . '" id="' . $field['id'] . $i . '" value="' . $option_value . '"' . checked( $checked, true, false ) . ' />';
+					$html .= '<label for="' . $field['id']  . $i . '">' . $option_label . '</label>';
 
-				echo '</div>';
+				$html .= '</div>';
 
 				$i++;
 			}
-			echo '</div>';
+			$html .= '</div>';
 
-		echo '</td>';
-	echo '</tr>';
+		$html .= '</td>';
+	$html .= '</tr>';
 
-	echo mblzr_end_option_separator( $field['desc'] );
+	$html .= mblzr_end_option_separator( $field['desc'] );
 
 break;
 
@@ -1073,12 +1215,16 @@ case 'radio-image-layout':
 
 	$field['type'] = 'radio-image';
 
-	echo '<tr class="type-' . $field['type'] . '">';
-		echo '<th scope="row"><label for="' . $field['id'] . '">' . $field['label'] . '</label></th>';
-		echo '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
+	$html .= '<tr class="type-' . $field['type'] . '">';
+		if( $field['label_hide'] !== true ){
+			$html .= '<th scope="row">';
+				$html .= '<label for="' . $field['id'] . '">' . $field['label'] . '</label>';
+			$html .= '</th>';
+		}
+		$html .= '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
 
 			if( empty( $get_value ) && !empty( $field['std'] ) ) $get_value = $field['std'];
-			echo '<div class="mblzr_radio_image">';
+			$html .= '<div class="mblzr_radio_image">';
 			$i = 1;
 
 			foreach ( $field['options'] as $key => $option ) {
@@ -1113,37 +1259,41 @@ case 'radio-image-layout':
 					$checked = true;
 				}
 
-				echo '<div class="mblzr-radio-images_options">';
+				$html .= '<div class="mblzr-radio-images_options">';
 
-					echo '<p style="display:none">';
-						echo '<input type="radio" name="' . esc_attr( $field['name'] ) . '" id="' . esc_attr( $field['id'] ) . '-' . esc_attr( $option_value ) . '" value="' . esc_attr( $option_value ) . '"' . checked( $checked, true, false ) . ' class="mblzr-radio mblzr_images" />';
-						echo '<label for="' . esc_attr( $field['id'] ) . '-' . esc_attr( $option_value ) . '">' . esc_attr( $option_label ) . '</label>';
-					echo '</p>';
+					$html .= '<p style="display:none">';
+						$html .= '<input type="radio" name="' . esc_attr( $field['name'] ) . '" id="' . esc_attr( $field['id'] ) . '-' . esc_attr( $option_value ) . '" value="' . esc_attr( $option_value ) . '"' . checked( $checked, true, false ) . ' class="mblzr-radio mblzr_images" />';
+						$html .= '<label for="' . esc_attr( $field['id'] ) . '-' . esc_attr( $option_value ) . '">' . esc_attr( $option_label ) . '</label>';
+					$html .= '</p>';
 
-					echo '<img src="' . esc_url( $option['src'] ) . '" alt="' . esc_attr( $option_label ) .'" title="' . esc_attr( $option_label ) .'" class="mblzr-radio-image ' . ( $checked == true ? ' mblzr-radio-image-selected' : '' ) . '" />';
-				echo '</div>';
+					$html .= '<img src="' . esc_url( $option['src'] ) . '" alt="' . esc_attr( $option_label ) .'" title="' . esc_attr( $option_label ) .'" class="mblzr-radio-image ' . ( $checked == true ? ' mblzr-radio-image-selected' : '' ) . '" />';
+				$html .= '</div>';
 
 				$i++;
 			}
 
-			echo '</div>';
+			$html .= '</div>';
 
-		echo '</td>';
-	echo '</tr>';
+		$html .= '</td>';
+	$html .= '</tr>';
 
-	echo mblzr_end_option_separator( $field['desc'] );
+	$html .= mblzr_end_option_separator( $field['desc'] );
 
 break;
 
 ////////////////////////////////////////////////////////////////////////////
 
 case 'radio':
-	echo '<tr>';
-		echo '<th scope="row"><label for="' . $field['id'] . '">' . $field['label'] . '</label></th>';
-		echo '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
+	$html .= '<tr>';
+		if( $field['label_hide'] !== true ){
+			$html .= '<th scope="row">';
+				$html .= '<label for="' . $field['id'] . '">' . $field['label'] . '</label>';
+			$html .= '</th>';
+		}
+		$html .= '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
 
 			if( empty( $get_value ) && !empty( $field['std'] ) ) $get_value = $field['std'];
-			echo '<ul>';
+			$html .= '<ul>';
 			$i = 1;
 			foreach ( $field['options'] as $key => $option ) {
 				// Append `[]` to the name to get multiple values
@@ -1177,26 +1327,30 @@ case 'radio':
 					$checked = true;
 				}
 
-				echo '<li><input type="radio" name="' . $field['name'] . '" id="' . $field['id'] . '_' . $i . '" value="' . $option_value . '"' . checked( $checked, true, false ) . ' /><label for="' . $field['id'] . '_' . $i . '">' . $option_label . '</label></li>';
+				$html .= '<li><input type="radio" name="' . $field['name'] . '" id="' . $field['id'] . '_' . $i . '" value="' . $option_value . '"' . checked( $checked, true, false ) . ' /><label for="' . $field['id'] . '_' . $i . '">' . $option_label . '</label></li>';
 				$i++;
 			}
-			echo '</ul>';
+			$html .= '</ul>';
 
-		echo '</td>';
-	echo '</tr>';
+		$html .= '</td>';
+	$html .= '</tr>';
 
-	echo mblzr_end_option_separator( $field['desc'] );
+	$html .= mblzr_end_option_separator( $field['desc'] );
 
 break;
 
 ////////////////////////////////////////////////////////////////////////////
 
 case 'multicheck':
-	echo '<tr>';
-		echo '<th scope="row"><label for="' . $field['id'] . '">' . $field['label'] . '</label></th>';
-		echo '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
+	$html .= '<tr>';
+		if( $field['label_hide'] !== true ){
+			$html .= '<th scope="row">';
+				$html .= '<label for="' . $field['id'] . '">' . $field['label'] . '</label>';
+			$html .= '</th>';
+		}
+		$html .= '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
 
-			echo '<ul>';
+			$html .= '<ul>';
 			$i = 1;
 			foreach ( $field['options'] as $key => $option ) {
 				// Append `[]` to the name to get multiple values
@@ -1230,15 +1384,15 @@ case 'multicheck':
 					$checked = true;
 				}
 
-				echo '<li><input type="checkbox" name="' . $field['name'] . '[]" id="' . $field['id'] . '_' . $i . '" value="' . $option_value . '"' . checked( $checked, true, false ) . ' /><label for="' . $field['id'] . '_' . $i . '">' . $option_label . '</label></li>';
+				$html .= '<li><input type="checkbox" name="' . $field['name'] . '[]" id="' . $field['id'] . '_' . $i . '" value="' . $option_value . '"' . checked( $checked, true, false ) . ' /><label for="' . $field['id'] . '_' . $i . '">' . $option_label . '</label></li>';
 				$i++;
 			}
-			echo '</ul>';
+			$html .= '</ul>';
 
-		echo '</td>';
-	echo '</tr>';
+		$html .= '</td>';
+	$html .= '</tr>';
 
-	echo mblzr_end_option_separator( $field['desc'] );
+	$html .= mblzr_end_option_separator( $field['desc'] );
 
 
 break;
@@ -1246,41 +1400,49 @@ break;
 ////////////////////////////////////////////////////////////////////////////
 
 case 'taxonomy_select':
-	echo '<tr>';
-		echo '<th scope="row"><label for="' . $field['id'] . '">' . $field['label'] . '</label></th>';
-		echo '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
+	$html .= '<tr>';
+		if( $field['label_hide'] !== true ){
+			$html .= '<th scope="row">';
+				$html .= '<label for="' . $field['id'] . '">' . $field['label'] . '</label>';
+			$html .= '</th>';
+		}
+		$html .= '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
 
 			if( isset($field['element_id']) && !empty($field['element_id']) ){
 
 				$names= wp_get_object_terms( $field['element_id'], $field['taxonomy'] );
 				$terms = get_terms( $field['taxonomy'], 'hide_empty=0' );
 				if( is_array($terms) && count($terms) > 0 ){
-					echo '<select name="' . $field['name'] . '" id="' . $field['id'] . '">';
+					$html .= '<select name="' . $field['name'] . '" id="' . $field['id'] . '">';
 					foreach ( $terms as $term ) {
 						if (!is_wp_error( $names ) && !empty( $names ) && !strcmp( $term->slug, $names[0]->slug ) ) {
-							echo '<option value="' . $term->slug . '" selected>' . $term->name . '</option>';
+							$html .= '<option value="' . $term->slug . '" selected>' . $term->name . '</option>';
 						} else {
-							echo '<option value="' . $term->slug . ' '  . ( $get_value == $term->slug ? $get_value : ' ' ) . '  ">' . $term->name . '</option>';
+							$html .= '<option value="' . $term->slug . ' '  . ( $get_value == $term->slug ? $get_value : ' ' ) . '  ">' . $term->name . '</option>';
 						}
 					}
-					echo '</select>';
+					$html .= '</select>';
 				}
 
 			}
 
-		echo '</td>';
-	echo '</tr>';
+		$html .= '</td>';
+	$html .= '</tr>';
 
-	echo mblzr_end_option_separator( $field['desc'] );
+	$html .= mblzr_end_option_separator( $field['desc'] );
 
 break;
 
 ////////////////////////////////////////////////////////////////////////////
 
 case 'taxonomy_radio':
-	echo '<tr>';
-		echo '<th scope="row"><label for="' . $field['id'] . '">' . $field['label'] . '</label></th>';
-		echo '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
+	$html .= '<tr>';
+		if( $field['label_hide'] !== true ){
+			$html .= '<th scope="row">';
+				$html .= '<label for="' . $field['id'] . '">' . $field['label'] . '</label>';
+			$html .= '</th>';
+		}
+		$html .= '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
 
 			if( isset($field['element_id']) && !empty($field['element_id']) ){
 
@@ -1288,67 +1450,75 @@ case 'taxonomy_radio':
 				$terms = get_terms( $field['taxonomy'], 'hide_empty=0' );
 
 				if( is_array($terms) && count($terms) > 0 ){
-					echo '<ul>';
+					$html .= '<ul>';
 					foreach ( $terms as $term ) {
 						if ( !is_wp_error( $names ) && !empty( $names ) && !strcmp( $term->slug, $names[0]->slug ) ) {
-							echo '<li><input type="radio" name="' . $field['name'] . '" value="'. $term->slug . '" checked>' . $term->name . '</li>';
+							$html .= '<li><input type="radio" name="' . $field['name'] . '" value="'. $term->slug . '" checked>' . $term->name . '</li>';
 						} else {
-							echo '<li><input type="radio" name="' . $field['name'] . '" value="' . $term->slug . '  '  . $get_value == $term->slug ? $get_value : ' ' . '  ">' . $term->name . '</li>';
+							$html .= '<li><input type="radio" name="' . $field['name'] . '" value="' . $term->slug . '  '  . $get_value == $term->slug ? $get_value : ' ' . '  ">' . $term->name . '</li>';
 						}
 					}
-					echo '</ul>';
+					$html .= '</ul>';
 
 				}
 
 			}
 
-		echo '</td>';
-	echo '</tr>';
+		$html .= '</td>';
+	$html .= '</tr>';
 
-	echo mblzr_end_option_separator( $field['desc'] );
+	$html .= mblzr_end_option_separator( $field['desc'] );
 
 break;
 
 ////////////////////////////////////////////////////////////////////////////
 
 case 'taxonomy_multicheck':
-	echo '<tr>';
-		echo '<th scope="row"><label for="' . $field['id'] . '">' . $field['label'] . '</label></th>';
-		echo '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
+	$html .= '<tr>';
+		if( $field['label_hide'] !== true ){
+			$html .= '<th scope="row">';
+				$html .= '<label for="' . $field['id'] . '">' . $field['label'] . '</label>';
+			$html .= '</th>';
+		}
+		$html .= '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
 
 			if( isset($field['element_id']) && !empty($field['element_id']) ){
 				$names = wp_get_object_terms( $field['element_id'], $field['taxonomy'] );
 				$terms = get_terms( $field['taxonomy'], 'hide_empty=0' );
 
 				if( is_array($terms) && count($terms) > 0 ){
-					echo '<ul>';
+					$html .= '<ul>';
 					foreach ($terms as $term) {
-						echo '<li><input type="checkbox" name="' . $field['name'], '[]" id="' . $field['id'] . '" value="' . $term->name  . '"';
+						$html .= '<li><input type="checkbox" name="' . $field['name'] . '[]" id="' . $field['id'] . '" value="' . $term->name  . '"';
 						foreach ($names as $name) {
-							if ( $term->slug == $name->slug ){ echo ' checked="checked" ';};
+							if ( $term->slug == $name->slug ){ $html .= ' checked="checked" ';};
 						}
-						echo' /><label>' . $term->name . '</label></li>';
+						$html .=' /><label>' . $term->name . '</label></li>';
 					}
-					echo '</ul>';
+					$html .= '</ul>';
 				}
 			}
 
-		echo '</td>';
-	echo '</tr>';
+		$html .= '</td>';
+	$html .= '</tr>';
 
-	echo mblzr_end_option_separator( $field['desc'] );
+	$html .= mblzr_end_option_separator( $field['desc'] );
 
 break;
 
 ////////////////////////////////////////////////////////////////////////////
 
 case 'file_list':
-	echo '<tr>';
-		echo '<th scope="row"><label for="' . $field['id'] . '">' . $field['label'] . '</label></th>';
-		echo '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
+	$html .= '<tr>';
+		if( $field['label_hide'] !== true ){
+			$html .= '<th scope="row">';
+				$html .= '<label for="' . $field['id'] . '">' . $field['label'] . '</label>';
+			$html .= '</th>';
+		}
+		$html .= '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
 
-			echo '<input class="mblzr_upload_file" type="text" size="36" name="' . $field['name'] . '" id="' . $field['id'] . '" value="" />';
-			echo '<input class="mblzr_upload_button button" type="button" value="Upload File" />';
+			$html .= '<input class="mblzr_upload_file" type="text" size="36" name="' . $field['name'] . '" id="' . $field['id'] . '" value="" />';
+			$html .= '<input class="mblzr_upload_button button" type="button" value="Upload File" />';
 			$args = array(
 				'post_type' 		=> 'attachment',
 				'numberposts' 		=> null,
@@ -1360,20 +1530,20 @@ case 'file_list':
 
 			$attachments = get_posts($args);
 			if ( $attachments && is_array($attachments) ) {
-				echo '<ul class="attach_list">';
+				$html .= '<ul class="attach_list">';
 				foreach ($attachments as $attachment) {
-					echo '<li>' . wp_get_attachment_link($attachment->ID, 'thumbnail', 0, 0, 'Download');
-					echo '<span>';
-					echo apply_filters('the_title', '&nbsp;' . $attachment->post_title );
-					echo '</span></li>';
+					$html .= '<li>' . wp_get_attachment_link($attachment->ID, 'thumbnail', 0, 0, 'Download');
+					$html .= '<span>';
+					$html .= apply_filters('the_title', '&nbsp;' . $attachment->post_title );
+					$html .= '</span></li>';
 				}
-				echo '</ul>';
+				$html .= '</ul>';
 			}
 
-		echo '</td>';
-	echo '</tr>';
+		$html .= '</td>';
+	$html .= '</tr>';
 
-	echo mblzr_end_option_separator( $field['desc'] );
+	$html .= mblzr_end_option_separator( $field['desc'] );
 
 break;
 
@@ -1401,72 +1571,80 @@ break;*/
 
 case 'file':
 
-	echo '<tr>';
-		echo '<th scope="row"><label for="' . $field['id'] . '">' . $field['label'] . '</label></th>';
-		echo '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
+	$html .= '<tr>';
+		if( $field['label_hide'] !== true ){
+			$html .= '<th scope="row">';
+				$html .= '<label for="' . $field['id'] . '">' . $field['label'] . '</label>';
+			$html .= '</th>';
+		}
+		$html .= '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
 
 			$input_type_url = "hidden";
 			if ( 'url' == $field['allow'] || ( is_array( $field['allow'] ) && in_array( 'url', $field['allow'] ) ) )
 				$input_type_url="text";
-			echo '<input class="mblzr_upload_file" type="' . $input_type_url . '" size="45" id="' . $field['id'] . '" name="' . $field['name'] . '" value="' . ( !is_bool($get_value) && !empty($get_value) ? $get_value : $field['std'] ) . '" />';
-			echo '<input class="mblzr_upload_button button" type="button" value="Upload File" />';
+			$html .= '<input class="mblzr_upload_file" type="' . $input_type_url . '" size="45" id="' . $field['id'] . '" name="' . $field['name'] . '" value="' . ( !is_bool($get_value) && !empty($get_value) ? $get_value : $field['std'] ) . '" />';
+			$html .= '<input class="mblzr_upload_button button" type="button" value="Upload File" />';
 
 			//get_post_meta( $post->ID, $field['id'] . "_id",true)
-			echo '<input class="mblzr_upload_file_id" type="hidden" id="' . $field['id'] . '_id" name="' . $field['name'] . '_id" value="' . '' . '" />';
-			echo '<div id="' . $field['id'] . '_status" class="mblzr_media_status">';
+			$html .= '<input class="mblzr_upload_file_id" type="hidden" id="' . $field['id'] . '_id" name="' . $field['name'] . '_id" value="' . '' . '" />';
+			$html .= '<div id="' . $field['id'] . '_status" class="mblzr_media_status">';
 			if ( $field['allow'] && !is_bool($get_value) && !empty($get_value) ) {
 
 				$check_image = preg_match( '/(^.*\.jpg|jpeg|png|gif|ico*)/i', $get_value );
 				if ( $check_image ) {
-					echo '<div class="img_status">';
-					echo '<img src="' . $get_value . '" alt="" />';
-					echo '<a href="#" class="mblzr_remove_file_button" rel="' . $field['id'] . '">Remove Image</a>';
-					echo '</div>';
+					$html .= '<div class="img_status">';
+					$html .= '<img src="' . $get_value . '" alt="" />';
+					$html .= '<a href="#" class="mblzr_remove_file_button" rel="' . $field['id'] . '">Remove Image</a>';
+					$html .= '</div>';
 				} else {
 					$parts = explode( '/', $get_value );
 					for( $i = 0; $i < count( $parts ); ++$i ) {
 						$title = $parts[$i];
 					}
-					echo 'File: <strong>' . $title . '</strong>&nbsp;&nbsp;&nbsp; (<a href="' . $get_value . '" target="_blank" rel="external">Download</a> / <a href="#" class="mblzr_remove_file_button" rel="' . $field['id'] . '">Remove</a>)';
+					$html .= 'File: <strong>' . $title . '</strong>&nbsp;&nbsp;&nbsp; (<a href="' . $get_value . '" target="_blank" rel="external">Download</a> / <a href="#" class="mblzr_remove_file_button" rel="' . $field['id'] . '">Remove</a>)';
 				}
 			}
-			echo '</div>';
+			$html .= '</div>';
 
 
-		echo '</td>';
-	echo '</tr>';
+		$html .= '</td>';
+	$html .= '</tr>';
 
-	echo mblzr_end_option_separator( $field['desc'] );
+	$html .= mblzr_end_option_separator( $field['desc'] );
 
 break;
 
 ////////////////////////////////////////////////////////////////////////////
 
 case 'oembed':
-	echo '<tr>';
-		echo '<th scope="row"><label for="' . $field['id'] . '">' . $field['label'] . '</label></th>';
-		echo '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
+	$html .= '<tr>';
+		if( $field['label_hide'] !== true ){
+			$html .= '<th scope="row">';
+				$html .= '<label for="' . $field['id'] . '">' . $field['label'] . '</label>';
+			$html .= '</th>';
+		}
+		$html .= '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
 
-			echo '<input class="mblzr_oembed" size="45" type="text" name="' . $field['name'] . '" id="' . $field['id'] . '" value="' . ( !is_bool($get_value) && !empty($get_value) ? $get_value : $field['std'] ) . '" />';
-			echo '<p class="mblzr-spinner spinner"></p>';
-			echo '<div id="' . $field['id'] . '_status" class="mblzr_media_status ui-helper-clearfix embed_wrap">';
+			$html .= '<input class="mblzr_oembed" size="45" type="text" name="' . $field['name'] . '" id="' . $field['id'] . '" value="' . ( !is_bool($get_value) && !empty($get_value) ? $get_value : $field['std'] ) . '" />';
+			$html .= '<p class="mblzr-spinner spinner"></p>';
+			$html .= '<div id="' . $field['id'] . '_status" class="mblzr_media_status ui-helper-clearfix embed_wrap">';
 				if ( !is_bool($get_value) && !empty($get_value) ) {
 					$check_embed = $GLOBALS['wp_embed']->run_shortcode( '[embed]' . esc_url( $get_value ) . '[/embed]' );
 					if ( $check_embed ) {
-						echo '<div class="embed_status">';
-						echo $check_embed;
-						echo '<a href="#" class="mblzr_remove_file_button" rel="' . $field['id'] . '">Remove Embed</a>';
-						echo '</div>';
+						$html .= '<div class="embed_status">';
+						$html .= $check_embed;
+						$html .= '<a href="#" class="mblzr_remove_file_button" rel="' . $field['id'] . '">Remove Embed</a>';
+						$html .= '</div>';
 					} else {
-						echo 'URL is not a valid oEmbed URL.';
+						$html .= 'URL is not a valid oEmbed URL.';
 					}
 				}
-			echo '</div>';
+			$html .= '</div>';
 
-		echo '</td>';
-	echo '</tr>';
+		$html .= '</td>';
+	$html .= '</tr>';
 
-	echo mblzr_end_option_separator( $field['desc'] );
+	$html .= mblzr_end_option_separator( $field['desc'] );
 
 break;
 
@@ -1482,101 +1660,105 @@ case 'background':
 		$get_value_bg_color = "#";
 	}
 
-	echo '<tr>';
-		echo '<th scope="row"><label for="' . $field['id'] . '">' . $field['label'] . '</label></th>';
-		echo '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
+	$html .= '<tr>';
+		if( $field['label_hide'] !== true ){
+			$html .= '<th scope="row">';
+				$html .= '<label for="' . $field['id'] . '">' . $field['label'] . '</label>';
+			$html .= '</th>';
+		}
+		$html .= '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
 
 			// build background colorpicker
-			echo '<div class="option-tree-ui-colorpicker-input-wrap">';
-				echo '<input class="mblzr_colorpicker mblzr_text_small" size="20" type="text" name="' . $field['name'] . '[background-color]" id="' . $field['id'] . '-colorpicker" value="' . $get_value_bg_color . '" />';
-			echo '</div>';
+			$html .= '<div class="option-tree-ui-colorpicker-input-wrap">';
+				$html .= '<input class="mblzr_colorpicker mblzr_text_small" size="20" type="text" name="' . $field['name'] . '[background-color]" id="' . $field['id'] . '-colorpicker" value="' . $get_value_bg_color . '" />';
+			$html .= '</div>';
 
-			/*echo '<input size="45" name="' . $field['name'] . '" id="' . $field['id'] . '" type="text" value="' . ( $get_value != "" ? stripslashes($get_value) : stripslashes($field['std']) ) . '" />';*/
+			/*$html .= '<input size="45" name="' . $field['name'] . '" id="' . $field['id'] . '" type="text" value="' . ( $get_value != "" ? stripslashes($get_value) : stripslashes($field['std']) ) . '" />';*/
 
 
-			echo '<div class="select-group">';
+			$html .= '<div class="select-group">';
 
 
 				// build background repeat
 				$background_repeat = ( isset( $get_value['background-repeat'] ) ? esc_attr( $get_value['background-repeat'] ) : ( isset( $field['std']['background-repeat'] ) ? $field['std']['background-repeat'] : '' ) );
+				
+				$html .= '<select name="' . $field['name'] . '[background-repeat]" id="' . $field['id'] . '-repeat">';
 
-				?><select name="<?php echo $field['name']; ?>[background-repeat]" id="<?php echo $field['id']; ?>-repeat"><?php
-
-					echo '<option value="">background-repeat</option>';
+					$html .= '<option value="">background-repeat</option>';
 
 					foreach ( mblzr_returns_background_repeat( $field['id'] ) as $key => $option ) {
-						echo '<option value="' . esc_attr( $key ) . '" ' . selected( $background_repeat, $key, false ) . '>' . esc_attr( $option ) . '</option>';
+						$html .= '<option value="' . esc_attr( $key ) . '" ' . selected( $background_repeat, $key, false ) . '>' . esc_attr( $option ) . '</option>';
 					}
-
-				?></select><?php
+					
+				$html .= '</select>';
 
 
 				// build background attachment
 				$background_attachment = ( isset( $get_value['background-attachment'] ) ? esc_attr( $get_value['background-attachment'] ) : ( isset( $field['std']['background-attachment'] ) ? $field['std']['background-attachment'] : '' ) );
 
-				?><select name="<?php echo $field['name']; ?>[background-attachment]" id="<?php echo $field['id']; ?>-attachment"><?php
-
-					echo '<option value="">background-attachment</option>';
+				$html .= '<select name="' . $field['name'] . '[background-attachment]" id="' . $field['id'] . '-attachment">';
+				
+					$html .= '<option value="">background-attachment</option>';
 
 					foreach ( mblzr_returns_background_attachment( $field['id'] ) as $key => $option ) {
-						echo '<option value="' . esc_attr( $key ) . '" ' . selected( $background_attachment, $key, false ) . '>' . esc_attr( $option ) . '</option>';
+						$html .= '<option value="' . esc_attr( $key ) . '" ' . selected( $background_attachment, $key, false ) . '>' . esc_attr( $option ) . '</option>';
 					}
 
-				?></select><?php
+				$html .= '</select>';
 
 
 				// build background position
 				$background_position = ( isset( $get_value['background-position'] ) ? esc_attr( $get_value['background-position'] ) : ( isset( $field['std']['background-position'] ) ? $field['std']['background-position'] : '' ) );
+	
+				$html .= '<select name="' . $field['name'] . '[background-position]" id="' . $field['id'] . '-position">';
 
-				?><select name="<?php echo $field['name']; ?>[background-position]" id="<?php echo $field['id']; ?>-position"><?php
-
-					echo '<option value="">background-position</option>';
+					$html .= '<option value="">background-position</option>';
 
 					foreach ( mblzr_returns_background_position( $field['id'] ) as $key => $option ) {
-						echo '<option value="' . esc_attr( $key ) . '" ' . selected( $background_position, $key, false ) . '>' . esc_attr( $option ) . '</option>';
+						$html .= '<option value="' . esc_attr( $key ) . '" ' . selected( $background_position, $key, false ) . '>' . esc_attr( $option ) . '</option>';
 					}
 
-				?></select><?php
+				$html .= '</select>';
 
 
 
-			echo '</div>';
+			$html .= '</div>';
 
 			// build background image
-			echo '<div class="mblzr-upload-parent">';
+			$html .= '<div class="mblzr-upload-parent">';
 
 				$background_image = ( isset( $get_value['background-image'] ) ? esc_attr( $get_value['background-image'] ) : ( isset( $field['std']['background-image'] ) ? $field['std']['background-image'] : '' ) );
 
-				echo '<input class="mblzr_upload_file" type="text" size="45" id="' . $field['id'] . '" name="' . $field['name'] . '[background-image]" value="' . $background_image . '" />';
-				echo '<input class="mblzr_upload_button button" type="button" value="Upload File" />';
-				echo '<input class="mblzr_upload_file_id" type="hidden" id="' . $field['id'] . '_id" name="' . $field['name'] . '_id" value="" />';
+				$html .= '<input class="mblzr_upload_file" type="text" size="45" id="' . $field['id'] . '" name="' . $field['name'] . '[background-image]" value="' . $background_image . '" />';
+				$html .= '<input class="mblzr_upload_button button" type="button" value="Upload File" />';
+				$html .= '<input class="mblzr_upload_file_id" type="hidden" id="' . $field['id'] . '_id" name="' . $field['name'] . '_id" value="" />';
 
-				echo '<div id="' . $field['id'] . '_status" class="mblzr_media_status">';
+				$html .= '<div id="' . $field['id'] . '_status" class="mblzr_media_status">';
 				if ( !empty($background_image) ) {
 					$check_image = preg_match( '/(^.*\.jpg|jpeg|png|gif|ico*)/i', $background_image );
 					if ( $check_image ) {
-						echo '<div class="img_status">';
-							echo '<img src="' . $background_image . '" style="max-width:600px;height:auto;" alt="" />';
-							echo '<div class="clear"></div>';
-							echo '<a href="#" class="mblzr_remove_file_button" rel="' . $field['id'] . '">Remove Image</a>';
-						echo '</div>';
+						$html .= '<div class="img_status">';
+							$html .= '<img src="' . $background_image . '" style="max-width:600px;height:auto;" alt="" />';
+							$html .= '<div class="clear"></div>';
+							$html .= '<a href="#" class="mblzr_remove_file_button" rel="' . $field['id'] . '">Remove Image</a>';
+						$html .= '</div>';
 					} else {
 						$parts = explode( '/', $get_value );
 						for( $i = 0; $i < count( $parts ); ++$i ) {
 							$title = $parts[$i];
 						}
-						echo 'File: <strong>' . $title . '</strong>&nbsp;&nbsp;&nbsp; (<a href="' . $background_image . '" target="_blank" rel="external">Download</a> / <a href="#" class="mblzr_remove_file_button" rel="' . $field['id'] . '">Remove</a>)';
+						$html .= 'File: <strong>' . $title . '</strong>&nbsp;&nbsp;&nbsp; (<a href="' . $background_image . '" target="_blank" rel="external">Download</a> / <a href="#" class="mblzr_remove_file_button" rel="' . $field['id'] . '">Remove</a>)';
 					}
 				}
-				echo '</div>';
+				$html .= '</div>';
 
-			echo '</div>';
+			$html .= '</div>';
 
 
-		echo '</td>';
-	echo '</tr>';
+		$html .= '</td>';
+	$html .= '</tr>';
 
-	echo mblzr_end_option_separator( $field['desc'] );
+	$html .= mblzr_end_option_separator( $field['desc'] );
 
 break;
 
@@ -1593,7 +1775,11 @@ if( is_admin() ) {
 	function custom_theme_mblzr_render_custom_field_type( $field, $get_value ) {
 
 		echo '<tr>';
-			echo '<th scope="row"><label for="' . $field['id'] . '">' . $field['label'] . '</label></th>';
+			if( $field['label_hide'] !== true ){
+				echo '<th scope="row">';
+					echo '<label for="' . $field['id'] . '">' . $field['label'] . '</label>';
+				echo '</th>';
+			}
 			echo '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
 				echo '<input type="text" name="' . $field['name'] . '" id="' . $field['id'] . '" value="' . ( isset($get_value) && !empty($get_value) ? $get_value : $field['std'] ) . '" />';
 			echo '</td>';
@@ -1635,7 +1821,15 @@ if( is_admin() ) {
 
 }
 
+	if( isset($field['echo']) && $field['echo'] === false ){
+		return $html;
+	}else{
+		echo $html;
+	}
+
 }}
+
+
 
 if ( ! function_exists( 'mblzr_get_option_on_off' ) ){function mblzr_get_option_on_off( $option, $default = 'yes' ){
 	if( isset($GLOBALS['mblzr_get_option']) && isset($GLOBALS['mblzr_get_option'][$option]) ){
