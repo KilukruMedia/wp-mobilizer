@@ -4,7 +4,7 @@
  * @package WP-Mobilizer
  * @link http://www.wp-mobilizer.com
  * @copyright Copyright &copy; 2013, Kilukru Media
- * @version: 1.0.5
+ * @version: 1.0.6
  */
 
 if (!function_exists('mblzr_activate')) {
@@ -842,7 +842,7 @@ case "checkbox":
 				$html .= ' class="' . $field['class'] . '"';
 			}
 		$html .= '>';
-			if( get_option($field['id']) ){ $checked = "checked=\"checked\""; }else{ $checked = "";}
+			if( !empty($get_value) ){ $checked = "checked=\"checked\""; }else{ $checked = "";}
 			$html .= '<input type="checkbox" name="' . $field['name'] . '" id="' . $field['id'] . '" value="true" ' . $checked . ' />';
 		$html .= '</td>';
 	$html .= '</tr>';
@@ -1831,19 +1831,62 @@ if( is_admin() ) {
 
 
 
-if ( ! function_exists( 'mblzr_get_option_on_off' ) ){function mblzr_get_option_on_off( $option, $default = 'yes' ){
-	if( isset($GLOBALS['mblzr_get_option']) && isset($GLOBALS['mblzr_get_option'][$option]) ){
-		return $GLOBALS['mblzr_get_option'][$option];
+if ( ! function_exists( 'mblzr_get_option' ) ){function mblzr_get_option( $option, $default = 'yes', $args = array() ){
+	$default_args = array(
+		'value_type' 				=> 'option',
+		'post_id' 					=> null,
+		'option_array_value' 		=> 0,
+	);
+	// Set default value
+	$args = array_merge( $default_args, $args );
+	
+	// Switch value type default name
+	switch( $args['value_type'] ){
+		case 'post_meta':
+		case 'postmeta':
+		case 'meta':
+			$args['value_type'] = 'post_meta';
+			break;
+			
+		default:
+			$args['value_type'] = $default_args['value_type'];
+		
 	}
-	$option_value = get_option($option, $default );
+	
+	// If global element already exist;
+	if( isset($GLOBALS['mblzr_get_' . $args['value_type'] ]) && isset($GLOBALS['mblzr_get_' . $args['value_type'] ][$option]) ){
+		return $GLOBALS['mblzr_get_' . $args['value_type'] ][$option];
+	}
+	
+	// Return value depend of type of value
+	if( $args['value_type'] == 'post_meta' && is_numeric($args['post_id']) ){
+		$option_value = get_post_meta( $args['post_id'], $option, $default );
+	}else{
+		$option_value = get_option($option, $default );
+	}
+	
+	// If return is an array
+	if( is_array($option_value) ){
+		$option_value = $option_value[$args['option_array_value']];
+	}
+
+	// If global return doesn't exist create an array
+	if( !isset($GLOBALS['mblzr_get_' . $args['value_type'] ]) ){
+		$GLOBALS['mblzr_get_' . $args['value_type']] = array();
+	}
+	
+	// Set value to global return
+	$GLOBALS['mblzr_get_' . $args['value_type']][$option] = $option_value;
+	
+	return $option_value;
+}}
+if ( ! function_exists( 'mblzr_get_post_meta' ) ){function mblzr_get_post_meta( $option, $default = 'yes', $args = array() ){
+	return mblzr_get_option( $option, $default, $args );
+}}
+
+if ( ! function_exists( 'mblzr_get_option_on_off' ) ){function mblzr_get_option_on_off( $option, $default = 'yes', $args = array() ){
+	$option_value = mblzr_get_option($option, $default, $args );
 	$option_value = (  ( $option_value == 'yes' || $option_value == 'oui' ) ? true : false );
-	
-	if( !isset($GLOBALS['mblzr_get_option']) ){
-		$GLOBALS['mblzr_get_option'] = array();
-	}
-	
-	$GLOBALS['mblzr_get_option'][$option] = $option_value;
-	
 	return $option_value;
 }}
 

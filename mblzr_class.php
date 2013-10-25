@@ -4,7 +4,7 @@
  * @package WP-Mobilizer
  * @link http://www.wp-mobilizer.com
  * @copyright Copyright &copy; 2013, Kilukru Media
- * @version: 1.0.5
+ * @version: 1.0.6
  */
 
 //error_reporting(E_ALL);
@@ -59,8 +59,8 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 		$this->minimum_WP 	= '3.5.0';
 
 		// Version of assets files
-		$this->version_css 	= '1.0.5';
-		$this->version_js 	= '1.0.5';
+		$this->version_css 	= '1.0.6';
+		$this->version_js 	= '1.0.6';
 
 		// Version of Functions Files
 		$this->minimum_version_functions	= '1.0';
