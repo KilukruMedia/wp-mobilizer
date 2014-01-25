@@ -4,7 +4,7 @@
  * @package WP-Mobilizer
  * @link http://www.wp-mobilizer.com
  * @copyright Copyright &copy; 2013, Kilukru Media
- * @version: 1.0.6
+ * @version: 1.0.7
  */
 
 if (!function_exists('mblzr_activate')) {
@@ -335,6 +335,8 @@ if ( ! function_exists( 'mblzr_display_form_elements' ) ){ function mblzr_displa
 		'options_key_value' 		=> false,
 		'std' 						=> '',
 		'std_value' 				=> '',
+		'style' 					=> '',
+		'style_reset' 				=> false,
 		'desc' 						=> '',
 		'id' 						=> '',
 		'echo' 						=> true,
@@ -672,35 +674,6 @@ case 'wp-editor':
 		$html .= '</td>';
 	$html .= '</tr>';
 	$html .= mblzr_end_option_separator( $field['desc'] );
-
-break;
-
-////////////////////////////////////////////////////////////////////////////
-
-case 'textarea':
-
-	$html .= '<tr>';
-		if( $field['label_hide'] !== true ){
-			$html .= '<th scope="row">';
-				$html .= '<label for="' . $field['id'] . '">' . $field['label'] . '</label>';
-			$html .= '</th>';
-		}
-		$html .= '<td';
-			if( isset($field['class']) && !empty($field['class']) ){
-				$html .= ' class="' . $field['class'] . '"';
-				}
-		$html .= '>';
-			$html .= '<textarea name="' . $field['name'] . '" id="' . $field['id'] . '" style="width:400px; height:200px;" cols="" rows="">';
-				if ( !is_bool($get_value) && !empty($get_value) ) {
-					$html .= stripslashes($get_value); 
-				}else {
-					$html .= stripslashes($field['std']);
-				}
-			$html .= '</textarea>';
-		$html .= '</td>';
-	$html .= '</tr>';
-	
-	$html .= mblzr_end_option_separator( $field['desc'] );;
 
 break;
 
@@ -1106,6 +1079,36 @@ break;
 
 ////////////////////////////////////////////////////////////////////////////
 
+case 'textarea':
+
+	$html .= '<tr>';
+		if( $field['label_hide'] !== true ){
+			$html .= '<th scope="row">';
+				$html .= '<label for="' . $field['id'] . '">' . $field['label'] . '</label>';
+			$html .= '</th>';
+		}
+		$html .= '<td';
+			if( isset($field['class']) && !empty($field['class']) ){
+				$html .= ' class="' . $field['class'] . '"';
+				}
+		$html .= '>';
+			$html .= '<textarea name="' . $field['name'] . '" id="' . $field['id'] . '" ' . ( $field['style_reset'] === true ? ( $field['style'] !== false && !empty($field['style']) ? 'style="' . $field['style'] . '"' : '' ) : 'style="width:400px; height:200px;' . ( $field['style'] !== false && !empty($field['style']) ? $field['style'] : '' ) . '"' ) . ' cols="80" rows="8">';
+				if ( !is_bool($get_value) && !empty($get_value) ) {
+					$html .= stripslashes($get_value); 
+				}else {
+					$html .= stripslashes($field['std']);
+				}
+			$html .= '</textarea>';
+		$html .= '</td>';
+	$html .= '</tr>';
+	
+	$html .= mblzr_end_option_separator( $field['desc'] );;
+
+break;
+
+////////////////////////////////////////////////////////////////////////////
+
+
 case 'textarea_small':
 	$html .= '<tr>';
 		if( $field['label_hide'] !== true ){
@@ -1115,7 +1118,7 @@ case 'textarea_small':
 		}
 		$html .= '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
 
-			$html .= '<textarea name="' . $field['name'] . '" id="' . $field['id'] . '" cols="60" rows="4">' . ( !is_bool($get_value) && !empty($get_value) ? $get_value : $field['std'] ) . '</textarea>';
+			$html .= '<textarea name="' . $field['name'] . '" id="' . $field['id'] . '" cols="60" rows="4" ' . ( $field['style_reset'] === true ? ( $field['style'] !== false && !empty($field['style']) ? 'style="' . $field['style'] . '"' : '' ) : 'style="' . ( $field['style'] !== false && !empty($field['style']) ? $field['style'] : '' ) . '"' ) . '>' . ( !is_bool($get_value) && !empty($get_value) ? $get_value : $field['std'] ) . '</textarea>';
 
 		$html .= '</td>';
 	$html .= '</tr>';
@@ -1134,7 +1137,7 @@ case 'textarea_code':
 			$html .= '</th>';
 		}
 		$html .= '<td' . ( isset($field['class']) && !empty($field['class']) ? ' class="' . $field['class'] . '"' : '' ) . '>';
-			$html .= '<textarea name="' . $field['name'] . '" id="' . $field['id'] . '" cols="60" rows="10" class="mblzr_textarea_code">' . ( !is_bool($get_value) && !empty($get_value) ? $get_value : $field['std'] ) . '</textarea>';
+			$html .= '<textarea name="' . $field['name'] . '" id="' . $field['id'] . '" cols="60" rows="10" class="mblzr_textarea_code" ' . ( $field['style_reset'] === true ? ( $field['style'] !== false && !empty($field['style']) ? 'style="' . $field['style'] . '"' : '' ) : 'style="' . ( $field['style'] !== false && !empty($field['style']) ? $field['style'] : '' ) . '"' ) . '>' . ( !is_bool($get_value) && !empty($get_value) ? $get_value : $field['std'] ) . '</textarea>';
 
 		$html .= '</td>';
 	$html .= '</tr>';

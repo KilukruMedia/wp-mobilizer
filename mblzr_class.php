@@ -4,7 +4,7 @@
  * @package WP-Mobilizer
  * @link http://www.wp-mobilizer.com
  * @copyright Copyright &copy; 2013, Kilukru Media
- * @version: 1.0.6
+ * @version: 1.0.7
  */
 
 //error_reporting(E_ALL);
@@ -59,8 +59,8 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 		$this->minimum_WP 	= '3.5.0';
 
 		// Version of assets files
-		$this->version_css 	= '1.0.6';
-		$this->version_js 	= '1.0.6';
+		$this->version_css 	= '1.0.7';
+		$this->version_js 	= '1.0.7';
 
 		// Version of Functions Files
 		$this->minimum_version_functions	= '1.0';
@@ -467,15 +467,40 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 	/**
 	 * Runs after WordPress has finished loading but before any headers are sent
 	 */
+	function sharing_love_meta_boxes() {
+		if( defined('MBLZR_STOP_SHARING_LOVE') ){ ///   :(   We need some support to give you some nive features, so thanks ;)
+			return;
+		}
+				
+		echo '
+		<div class="dashboard_widget_block">
+			<p><i class="mblzr_icon-mug"></i> Beer == New Awesome Features on all our plugins.<br />Thanks so much for your support.</p>
+			<a class="button button-primary" target="_blank" href="http://ch.eckout.com/wpmobilizer-donation">Buy me a Beer. <i class="mblzr_icon-heart"></i> You!</a>
+			<a class="button button-primary" target="_blank" href="http://ch.eckout.com/wpmobilizer-donation-10">or 10$</a>
+		</div>
+		';
+	}
+
+	/**
+	 * Runs after WordPress has finished loading but before any headers are sent
+	 */
 	function dashboard_widget_function() {
 		if( defined('MBLZR_DISABLED_DASHBOARD_WIDGET') ){
 			return;
 		}
+
+		echo '
+		<div class="dashboard_widget_block">
+			<p><i class="mblzr_icon-mug"></i> Beer == New Awesome Features on all our plugins.<br />Thanks so much for your support.</p>
+			<a class="button button-primary" target="_blank" href="http://ch.eckout.com/wpmobilizer-donation">Buy me a Beer. <i class="mblzr_icon-heart"></i> You!</a>
+			<a class="button button-primary" target="_blank" href="http://ch.eckout.com/wpmobilizer-donation-10">or 10$</a>
+		</div>
+		';
 		
-		echo '<ul class="ul-disc">';
-			echo '<li>Mobilizer1 - [<a href="http://www.wp-mobilizer.com" target="_blank">' . __('More info', 'wp_mobilizer') . '</a>] [<a href="http://www.wp-mobilizer.com" target="_blank">' . __('Download', 'wp_mobilizer') . '</a>] (Free) (installed)</li>';
-			echo '<li>Mobilizer2 - [<a href="http://www.wp-mobilizer.com" target="_blank">' . __('Download', 'wp_mobilizer') . '</a>] (Free)</li>';
-		echo '</ul>';
+		//echo '<ul class="ul-disc">';
+		//	echo '<li>Mobilizer1 - [<a href="http://www.wp-mobilizer.com" target="_blank">' . __('More info', 'wp_mobilizer') . '</a>] [<a href="http://www.wp-mobilizer.com" target="_blank">' . __('Download', 'wp_mobilizer') . '</a>] (Free) (installed)</li>';
+		//	echo '<li>Mobilizer2 - [<a href="http://www.wp-mobilizer.com" target="_blank">' . __('Download', 'wp_mobilizer') . '</a>] (Free)</li>';
+		//echo '</ul>';
 	}
 
 	/**
@@ -486,7 +511,7 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 			return;
 		}
 		
-		wp_add_dashboard_widget('wp_dashboard_widget', __('Mobile themes', 'wp_mobilizer'), array(&$this, 'dashboard_widget_function') );
+		wp_add_dashboard_widget('wp_dashboard_widget', '<i class="mblzr_icon-heart"></i> WP-Mobilizer?', array(&$this, 'dashboard_widget_function') );
 	}
 
 	/**
@@ -1000,15 +1025,25 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 
 
 		// Module
-		$module_links = '';
-		$module_links .= '<ul>';
-			$module_links .= '<li><a href="http://www.kilukrumedia.com/?ref=plugin_wpmblzr_' . MBLZR_VERSION_NUMERIC . '" target="_blank">Kilukru Media</a></li>';
-		$module_links .= '</ul>';
-		$html .= $this->module_html( __('Links', 'wp_mobilizer'), $module_links );
+		$module_support = '';
+		//$module_support .= '' . sprintf(__('If you have any issues, %svisit our support forum%s.', 'wp_mobilizer'), '<a href="http://www.wp-mobilizer.com" target="_blank">','</a>' );
+		$module_support .= '
+		<div class="dashboard_widget_block">
+			<p><i class="mblzr_icon-mug"></i> ' . __('Beer == New Awesome Features on all our plugins.<br />Thanks so much for your support.', 'wp_mobilizer') . '</p>
+			<a class="button button-primary" target="_blank" href="http://ch.eckout.com/wpmobilizer-donation">' . sprintf(__('Buy me a Beer. %s You!', 'wp_mobilizer'), '<i class="mblzr_icon-heart"></i>') . '</a>
+			<a class="button button-primary" target="_blank" href="http://ch.eckout.com/wpmobilizer-donation-10">' . __('or 10$', 'wp_mobilizer') . '</a>
+		</div>';
+		$html .= $this->module_html( '<i class="mblzr_icon-heart"></i> WP-Mobilizer?', $module_support );
 
 
 		// Module
-		$html .= $this->module_html( __('Facebook', 'wp_mobilizer'), '<iframe src="//www.facebook.com/plugins/likebox.php?href=https%3A%2F%2Fwww.facebook.com%2Fkilukrumedia&amp;width=185&amp;height=258&amp;show_faces=true&amp;colorscheme=light&amp;stream=false&amp;border=false&amp;border_color=%23fff&amp;header=false&amp;appId=215419415167468" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:235px; height:258px;" allowTransparency="true"></iframe>' );
+		$module_links = '';
+		$module_links .= '<ul>';
+			$module_links .= '<li><a href="http://www.kilukrumedia.com/?ref=plugin_wpmblzr_' . MBLZR_VERSION_NUMERIC . '" target="_blank">Kilukru Media</a></li>';
+			$module_links .= '<li><a href="http://bit.ly/tf_wpmobilizer" target="_blank">Theme forest</a><small> (Premium Wordpress Themes)</small></li>';
+		$module_links .= '</ul>';
+		$html .= $this->module_html( __('Links', 'wp_mobilizer'), $module_links );
+
 
 		// Module
 		$module_infos_url = '//www.wp-mobilizer.com/ads/';
@@ -1028,6 +1063,11 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 		$module_infos_url .= '?ref=plugin_wpmblzr_' . MBLZR_VERSION_NUMERIC;
 
 		$html .= $this->module_html( __('Informations', 'wp_mobilizer'), '<iframe src="' . $module_infos_url . '" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:235px; height:200px;" allowTransparency="true"></iframe>' );
+
+
+		// Module
+		$html .= $this->module_html( __('Facebook', 'wp_mobilizer'), '<iframe src="//www.facebook.com/plugins/likebox.php?href=https%3A%2F%2Fwww.facebook.com%2Fkilukrumedia&amp;width=185&amp;height=258&amp;show_faces=true&amp;colorscheme=light&amp;stream=false&amp;border=false&amp;border_color=%23fff&amp;header=false&amp;appId=215419415167468" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:235px; height:258px;" allowTransparency="true"></iframe>' );
+
 
 
 		// Return HTML

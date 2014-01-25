@@ -3,7 +3,7 @@
 Plugin Name: WP-Mobilizer
 Plugin URI: http://www.wp-mobilizer.com
 Description: WP-Mobilizer detects over 5,000 mobile devices and displays. You choose the theme you want for devices. Supports most of the mobile platform including iphone, ipad, ipod, windows mobile, parm os, blackberry, android.
-Version: 1.0.6
+Version: 1.0.7
 Author: Kilukru Media
 Author URI: http://www.kilukrumedia.com
 */
@@ -35,13 +35,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 if ( !session_id() ){ session_start(); } // Start session just in case
 
 if ( ! defined( 'MBLZR_VERSION' ) )
-{	define( 'MBLZR_VERSION', '1.0.6' ); }
+{	define( 'MBLZR_VERSION', '1.0.7' ); }
 
 if ( ! defined( 'MBLZR_VERSION_NUMERIC' ) )
-{	define( 'MBLZR_VERSION_NUMERIC', '1006001' ); }
+{	define( 'MBLZR_VERSION_NUMERIC', '1007001' ); }
 
 if ( ! defined( 'MBLZR_VERSION_FILETIME' ) )
-{	define( 'MBLZR_VERSION_FILETIME', '1382389760' ); } //Set by echo time();
+{	define( 'MBLZR_VERSION_FILETIME', '1382399760' ); } //Set by echo time();
 
 if ( ! defined( 'MBLZR_PLUGIN_DIR' ) )
 {	define( 'MBLZR_PLUGIN_DIR', plugin_dir_path( __FILE__ ) ); }
