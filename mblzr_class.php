@@ -3,14 +3,17 @@
 /**
  * @package WP-Mobilizer
  * @link http://www.wp-mobilizer.com
- * @copyright Copyright &copy; 2013, Kilukru Media
- * @version: 1.0.7
+ * @copyright Copyright &copy; 2014, Kilukru Media
+ * @version: 1.0.8
  */
 
-//error_reporting(E_ALL);
-//ini_set('display_errors', 'On');
-//ini_set('log_errors', 'On');
-//ini_set('error_reporting', E_ALL);
+// Show errors to debug mode
+if( defined( 'MBLZR_DEBUG' ) && isset($_GET['mblzr_debug']) ){
+	error_reporting(E_ALL);
+	ini_set('display_errors', 'On');
+	ini_set('log_errors', 'On');
+	ini_set('error_reporting', E_ALL);
+}
 
 /**
  * Include some libraries
@@ -225,7 +228,9 @@ class WP_Mobilizer extends MBLZR_uagent_info  {
 		//$this->log("another plugin interfering?");
 
 		echo "\n<!-- WP-Mobilizer " . MBLZR_VERSION . " by Kilukru Media (www.wp-mobilizer.com)";
-			//echo "[" . time() . "] ";
+			if( isset($_GET['mblzr_debug']) ){
+				echo "[" . time() . "] ";
+			}
 		echo "-->\n";
 		echo "<!-- /WP-Mobilizer -->\n";
 

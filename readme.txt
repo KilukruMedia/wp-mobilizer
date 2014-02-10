@@ -5,7 +5,7 @@ Tags: mobile theme, mobile theme switcher, mobile browser detect, mobile detect,
 Requires at least: 3.5
 Tested up to: 3.6
 Stable tag: trunk
-Version: 1.0.7
+Version: 1.0.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -54,6 +54,10 @@ Yes it detect most of the mobile browsers (more than 5,000+) and automatically r
 1. Themes settings support WP-Mobilizer plugin
 
 == Changelog ==
+
+= 1.0.8 =
+* bugs fix for session problem
+* update MobileESP librarie (mobile/display dectector) to latest version
 
 = 1.0.7 =
 * bugs fix
